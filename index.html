@@ -11,6 +11,96 @@
 </head>
 <body>
 
+<div class="intro-overlay" id="introOverlay" role="status" aria-live="polite">
+  <div class="terminal intro-terminal">
+    <div class="terminal-bar">
+      <span class="terminal-dot"></span><span class="terminal-dot"></span><span class="terminal-dot"></span>
+      <span class="terminal-title">visitor@affan.dev: ~</span>
+    </div>
+    <div class="terminal-body">
+      <p class="terminal-line">
+        <span class="terminal-prompt intro-prompt">$</span>
+        <span id="introCmd" class="intro-cmd"></span><span class="terminal-cursor" id="introCursor"></span>
+      </p>
+      <div class="intro-output" id="introOutput">
+        <h1 class="intro-headline">Welcome to my website</h1>
+        <div class="intro-bar-wrap"><div class="intro-bar" id="introBar"></div></div>
+        <p class="intro-status"><span class="intro-ok">✓</span> ready — loading Affan.dev</p>
+      </div>
+    </div>
+  </div>
+  <button class="intro-skip" id="introSkip" type="button">Skip intro →</button>
+</div>
+<script>
+(function(){
+  var overlay = document.getElementById('introOverlay');
+  if(!overlay) return;
+  var finished = false;
+  var timers = [];
+
+  function finish(){
+    if(finished) return;
+    finished = true;
+    for(var i = 0; i < timers.length; i++) clearTimeout(timers[i]);
+    try{
+      var saved = localStorage.getItem('affan-weather') || 'clear';
+      if(typeof WeatherFX !== 'undefined') WeatherFX.setMode(saved);
+    }catch(e){}
+    document.documentElement.style.overflow = '';
+    overlay.classList.add('closing');
+    setTimeout(function(){ overlay.style.display = 'none'; }, 950);
+  }
+
+  // Hard safety net: whatever happens above, the overlay is force-closed
+  // after 7s so a broken script.js (or any other error) can never leave
+  // the site stuck behind the intro.
+  timers.push(setTimeout(finish, 7000));
+
+  var skipBtn = document.getElementById('introSkip');
+  if(skipBtn) skipBtn.addEventListener('click', finish);
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') finish(); });
+
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduced){ finish(); return; }
+
+  try{
+    document.documentElement.style.overflow = 'hidden';
+    var celestial = document.getElementById('celestial');
+    if(celestial) celestial.classList.add('intro-rise');
+
+    timers.push(setTimeout(function(){
+      try{ if(typeof WeatherFX !== 'undefined') WeatherFX.setMode('windy'); }catch(e){}
+    }, 300));
+
+    var cmdEl = document.getElementById('introCmd');
+    var cursor = document.getElementById('introCursor');
+    var output = document.getElementById('introOutput');
+    var bar = document.getElementById('introBar');
+    var text = 'cd affan.dev && ./welcome.sh';
+
+    timers.push(setTimeout(function(){
+      var i = 0;
+      var t = setInterval(function(){
+        if(cmdEl) cmdEl.textContent = text.slice(0, i);
+        i++;
+        if(i > text.length){
+          clearInterval(t);
+          timers.push(setTimeout(function(){
+            if(cursor) cursor.remove();
+            if(output) output.classList.add('show');
+            if(bar) requestAnimationFrame(function(){ bar.style.width = '100%'; });
+            timers.push(setTimeout(finish, 2200));
+          }, 260));
+        }
+      }, 32);
+      timers.push(t);
+    }, 900));
+  }catch(e){
+    finish();
+  }
+})();
+</script>
+
 <div class="progress-bar" id="progressBar"></div>
 
 <div class="celestial" id="celestial"></div>

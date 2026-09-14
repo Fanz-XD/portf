@@ -1006,4 +1006,111 @@ footer{
 
 @media (prefers-reduced-motion: reduce){
   .cloud, .photo-cloud, .eyebrow-badge .dot, .role-cursor, .terminal-cursor, .scroll-cue span{ animation: none !important; }
+  .intro-terminal, .intro-output, .celestial.intro-rise{ animation: none !important; transition: none !important; }
+}
+
+/* ---------- Intro overlay (sky preloader) ---------- */
+.intro-overlay{
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 60%, var(--sky-bottom) 100%);
+  backdrop-filter: blur(20px) saturate(115%);
+  -webkit-backdrop-filter: blur(20px) saturate(115%);
+  transition: opacity 0.9s cubic-bezier(.2,.7,.2,1), backdrop-filter 0.9s cubic-bezier(.2,.7,.2,1);
+  /* CSS-only safety net: even if JavaScript fails entirely (blocked,
+     404, thrown error elsewhere), the overlay releases itself after
+     8s and can never permanently block the page. */
+  animation: introAutoRelease 0.01s linear 8s forwards;
+}
+@keyframes introAutoRelease{
+  to{ opacity: 0; visibility: hidden; pointer-events: none; }
+}
+.intro-overlay.closing{
+  opacity: 0;
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  pointer-events: none;
+}
+
+.intro-terminal{
+  width: min(560px, 100%);
+  margin-top: 0;
+  opacity: 0;
+  transform: translateY(28px) scale(0.96);
+  animation: introCardIn 0.9s cubic-bezier(.2,.7,.2,1) forwards 0.4s;
+}
+@keyframes introCardIn{ to{ opacity: 1; transform: translateY(0) scale(1); } }
+
+.intro-prompt{ color: #9FD3FF; }
+.intro-cmd{ color: #DCEEFF; }
+
+.intro-output{
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.7s cubic-bezier(.2,.7,.2,1), transform 0.7s cubic-bezier(.2,.7,.2,1);
+  margin-top: 4px;
+}
+.intro-output.show{ opacity: 1; transform: translateY(0); }
+
+.intro-headline{
+  font-family: 'Sora', sans-serif;
+  font-size: clamp(1.4rem, 4.2vw, 2.2rem);
+  font-weight: 700;
+  color: #F0F7FF;
+  letter-spacing: -0.01em;
+  margin: 2px 0 16px;
+}
+
+.intro-bar-wrap{
+  height: 4px;
+  width: 100%;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.12);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.intro-bar{
+  height: 100%;
+  width: 0%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--blue-500), var(--blue-700));
+  transition: width 1.6s cubic-bezier(.3,.7,.3,1);
+}
+
+.intro-status{
+  margin: 0;
+  font-size: 0.82rem;
+  color: #9FD3FF;
+}
+.intro-ok{ color: #9FD3FF; margin-right: 4px; }
+
+.intro-skip{
+  position: absolute;
+  bottom: 26px;
+  right: 26px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+  padding: 9px 16px;
+  border-radius: 8px;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.intro-skip:hover{ color: var(--blue-700); border-color: var(--blue-500); background: rgba(78,157,224,0.08); }
+
+/* the site's own sun/moon rising into place as the intro plays */
+.celestial.intro-rise{ animation: celestialRise 1.8s cubic-bezier(.2,.7,.2,1) both 0.1s; }
+@keyframes celestialRise{
+  from{ transform: translateY(55vh) scale(0.82); opacity: 0; }
+  55%{ opacity: 1; }
+  to{ transform: translateY(0) scale(1); opacity: 1; }
+}
+
+@media (max-width: 560px){
+  .intro-skip{ bottom: 16px; right: 16px; font-size: 0.72rem; padding: 8px 13px; }
 }
