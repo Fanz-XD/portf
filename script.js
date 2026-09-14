@@ -609,3 +609,59 @@ WeatherFX.init();
   });
   btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 })();
+
+/* ===== Ripple effect on .btn elements ===== */
+(function(){
+  document.querySelectorAll('.btn, .skill-tab, .terminal-run').forEach(btn => {
+    btn.addEventListener('click', function(e){
+      const ripple = document.createElement('span');
+      const rect = this.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height) * 1.5;
+      ripple.style.cssText = `
+        position:absolute; border-radius:50%; pointer-events:none;
+        width:${size}px; height:${size}px;
+        left:${e.clientX - rect.left - size/2}px;
+        top:${e.clientY - rect.top - size/2}px;
+        background:rgba(255,255,255,0.3);
+        transform:scale(0); animation:rippleAnim 0.55s ease-out forwards;
+      `;
+      // inject keyframes once
+      if(!document.getElementById('rippleStyle')){
+        const s = document.createElement('style');
+        s.id = 'rippleStyle';
+        s.textContent = '@keyframes rippleAnim{to{transform:scale(1);opacity:0;}}';
+        document.head.appendChild(s);
+      }
+      const prev = this.style.position;
+      if(!prev || prev === 'static') this.style.position = 'relative';
+      this.style.overflow = 'hidden';
+      this.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 600);
+    });
+  });
+})();
+
+/* ===== 3D card tilt effect on cards (desktop only) ===== */
+(function(){
+  if(window.matchMedia('(pointer: coarse)').matches) return;
+  const cards = document.querySelectorAll('.edu-card, .cert-card, .focus-item, .road-step, .contact-card, .contact-form-card');
+  cards.forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      card.style.transform = `perspective(600px) rotateX(${-y * 5}deg) rotateY(${x * 5}deg) translateY(-4px)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    });
+  });
+})();
+
+/* ===== Smooth active nav link underline ===== */
+(function(){
+  document.querySelectorAll('[data-nav]').forEach(link => {
+    link.addEventListener('mouseenter', () => link.style.transition = 'all 0.18s ease');
+    link.addEventListener('mouseleave', () => link.style.transition = 'all 0.18s ease');
+  });
+})();
