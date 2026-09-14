@@ -33,7 +33,7 @@
 }
 
 *{ box-sizing: border-box; }
-html{ scroll-behavior: smooth; }
+html{ scroll-behavior: smooth; overflow-x: hidden; max-width: 100%; }
 
 body{
   margin:0;
@@ -41,6 +41,7 @@ body{
   color: var(--ink);
   background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 55%, var(--sky-bottom) 100%);
   overflow-x: hidden;
+  max-width: 100%;
   transition: background 0.4s ease, color 0.4s ease;
 }
 
@@ -473,7 +474,7 @@ nav.wrap{
 .stat-label{ font-size: 0.8rem; color: var(--ink-soft); }
 
 /* hero visual: profile photo */
-.hero-visual{ position: relative; height: 380px; display:flex; align-items:center; justify-content:center; }
+.hero-visual{ position: relative; height: 380px; display:flex; align-items:center; justify-content:center; overflow: hidden; }
 .photo-frame{
   position: relative;
   width: 280px;
@@ -864,6 +865,7 @@ section{ padding: 90px 0; }
   grid-template-columns: 1fr 1fr;
   gap: 28px;
   align-items: stretch;
+  min-width: 0;
 }
 .contact-card{
   background: var(--surface);
@@ -874,10 +876,11 @@ section{ padding: 90px 0; }
   flex-direction:column;
   justify-content:center;
   gap: 22px;
+  min-width: 0;
 }
 .contact-card h2{ font-size: clamp(1.5rem, 3vw, 1.9rem); }
 .contact-card > p{ color: var(--ink-soft); line-height:1.65; margin:0; }
-.contact-links{ display:flex; flex-direction:column; gap: 14px; }
+.contact-links{ display:flex; flex-direction:column; gap: 14px; min-width: 0; }
 .contact-links a, .contact-copy{
   display:flex;
   align-items:center;
@@ -890,6 +893,7 @@ section{ padding: 90px 0; }
   background: var(--sky-top);
   transition: border-color 0.2s ease, transform 0.15s ease;
   width: 100%;
+  min-width: 0;
   text-align: left;
   color: var(--ink);
   position: relative;
@@ -922,6 +926,7 @@ section{ padding: 90px 0; }
   border: 1px solid var(--line);
   border-radius: 24px;
   padding: 40px 34px;
+  min-width: 0;
 }
 .form-row{ margin-bottom: 18px; display:flex; flex-direction:column; gap:8px; }
 .form-row label{ font-size: 0.85rem; font-weight:600; color: var(--ink-soft); }
