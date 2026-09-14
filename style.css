@@ -900,8 +900,16 @@ section{ padding: 90px 0; }
   display:flex; align-items:center; justify-content:center;
   color: var(--blue-600);
 }
+.contact-text{
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .copy-hint{
-  margin-left: auto;
+  margin-left: 0;
+  flex-shrink: 0;
   font-size: 0.76rem;
   font-weight: 600;
   color: var(--blue-600);
@@ -983,6 +991,8 @@ footer{
   .roadmap{ grid-template-columns: 1fr; }
   .roadmap::before{ display:none; }
   .contact-grid{ grid-template-columns: 1fr; }
+  .contact-card, .contact-form-card{ padding: 32px 24px; }
+  .contact-links a, .contact-copy{ padding: 13px 14px; gap: 10px; font-size: 0.9rem; }
   .nav-links{ display:none; }
   .nav-toggle{ display:flex; }
   .hero-stats{ gap: 22px; flex-wrap: wrap; }
