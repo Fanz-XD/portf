@@ -33,6 +33,77 @@
   });
 })();
 
+/* ===== Background music (YouTube) ===== */
+(function(){
+  const YT_VIDEO_ID = 'T9Xg1aEo1UI';
+  const btn = document.getElementById('musicToggle');
+  const mount = document.getElementById('ytMusicPlayer');
+  if(!btn || !mount) return;
+
+  let player = null;
+  let apiReady = false;
+  let playRequested = false;
+
+  function setPlaying(isPlaying){
+    btn.classList.toggle('is-playing', isPlaying);
+    btn.setAttribute('aria-pressed', String(isPlaying));
+    btn.title = isPlaying ? 'Pause music' : 'Play background music';
+  }
+
+  function createPlayer(){
+    player = new YT.Player(mount, {
+      height: '0',
+      width: '0',
+      videoId: YT_VIDEO_ID,
+      playerVars: {
+        autoplay: 0,
+        controls: 0,
+        disablekb: 1,
+        fs: 0,
+        loop: 1,
+        playlist: YT_VIDEO_ID,
+        playsinline: 1
+      },
+      events: {
+        onReady: function(){
+          if(playRequested) player.playVideo();
+        },
+        onStateChange: function(e){
+          if(e.data === YT.PlayerState.PLAYING) setPlaying(true);
+          else if(e.data === YT.PlayerState.PAUSED || e.data === YT.PlayerState.ENDED) setPlaying(false);
+        }
+      }
+    });
+  }
+
+  window.onYouTubeIframeAPIReady = function(){
+    apiReady = true;
+    createPlayer();
+  };
+
+  function loadApi(){
+    if(document.getElementById('ytIframeApi')) return;
+    const tag = document.createElement('script');
+    tag.id = 'ytIframeApi';
+    tag.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(tag);
+  }
+
+  btn.addEventListener('click', function(){
+    playRequested = true;
+    if(!apiReady){
+      loadApi();
+      return;
+    }
+    if(!player || typeof player.getPlayerState !== 'function') return;
+    if(player.getPlayerState() === YT.PlayerState.PLAYING){
+      player.pauseVideo();
+    }else{
+      player.playVideo();
+    }
+  });
+})();
+
 /* ===== Stars (dark mode clear sky) ===== */
 (function(){
   const holder = document.getElementById('stars');

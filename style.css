@@ -291,6 +291,40 @@ nav.wrap{
 #themeIcon{ transition: transform 0.4s ease; }
 [data-theme="dark"] #themeIcon{ transform: rotate(180deg); }
 
+#musicToggle .music-bars{
+  display:none;
+  align-items:flex-end;
+  gap: 3px;
+  height: 14px;
+}
+#musicToggle .music-bars span{
+  width: 2.5px;
+  border-radius: 2px;
+  background: currentColor;
+  animation: musicBar 0.85s ease-in-out infinite;
+  transform-origin: bottom;
+}
+#musicToggle .music-bars span:nth-child(1){ height: 6px; animation-delay: 0s; }
+#musicToggle .music-bars span:nth-child(2){ height: 13px; animation-delay: 0.18s; }
+#musicToggle .music-bars span:nth-child(3){ height: 9px; animation-delay: 0.36s; }
+#musicToggle.is-playing svg{ display:none; }
+#musicToggle.is-playing .music-bars{ display:flex; }
+#musicToggle.is-playing{ color: var(--blue-600); border-color: var(--blue-500); }
+@keyframes musicBar{
+  0%, 100%{ transform: scaleY(0.35); }
+  50%{ transform: scaleY(1); }
+}
+.yt-music-player{
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .weather-widget{ position: relative; }
 .weather-menu{
   position: absolute;
