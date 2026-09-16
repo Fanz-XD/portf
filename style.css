@@ -383,8 +383,46 @@ nav.wrap{
   font-size: 13px;
 }
 #musicPlayPause:hover{ color: #0b0b0b; background: #1ed760; transform: scale(1.05); }
-.music-progress{ height: 3px; background: #3a3a3a; border-radius: 2px; margin-bottom: 14px; overflow: hidden; }
-.music-progress-fill{ height: 100%; width: 0%; background: #1DB954; border-radius: 2px; transition: width 0.25s linear; }
+.music-progress{
+  position: relative;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  margin-bottom: 14px;
+}
+.music-progress::before{
+  content: '';
+  position: absolute;
+  left: 0; right: 0; top: 50%;
+  transform: translateY(-50%);
+  height: 3px;
+  background: #3a3a3a;
+  border-radius: 2px;
+}
+.music-progress-fill{
+  position: absolute;
+  left: 0; top: 50%;
+  transform: translateY(-50%);
+  height: 3px; width: 0%;
+  background: #1DB954;
+  border-radius: 2px;
+  transition: width 0.25s linear;
+  pointer-events: none;
+}
+.music-progress:hover .music-progress-fill{ background: #1ed760; }
+.music-progress-fill::after{
+  content: '';
+  position: absolute;
+  right: -5px; top: 50%;
+  transform: translateY(-50%);
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.music-progress:hover .music-progress-fill::after{ opacity: 1; }
 .music-tracklist{ display:flex; flex-direction:column; gap: 2px; max-height: 220px; overflow-y: auto; }
 .music-track{
   display:flex; align-items:center; gap: 10px;

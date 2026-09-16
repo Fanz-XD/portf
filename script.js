@@ -57,10 +57,11 @@
   const labelEl = document.getElementById('musicNowLabel');
   const titleEl = document.getElementById('musicNowTitle');
   const progressFill = document.getElementById('musicProgressFill');
+  const progressBar = document.getElementById('musicProgress');
   const playPauseBtn = document.getElementById('musicPlayPause');
   const prevBtn = document.getElementById('musicPrev');
   const nextBtn = document.getElementById('musicNext');
-  if(!btn || !panel || !mount || !listEl) return;
+  if(!btn || !panel || !mount || !listEl || !progressBar) return;
 
   let player = null;
   let apiReady = false;
@@ -224,6 +225,18 @@
     playRequested = true;
     playIndex(currentIndex + 1);
   });
+
+  function seekFromEvent(e){
+    if(!player || typeof player.getDuration !== 'function') return;
+    const duration = player.getDuration();
+    if(!duration || duration <= 0) return;
+    const rect = progressBar.getBoundingClientRect();
+    const ratio = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+    player.seekTo(duration * ratio, true);
+    progressFill.style.width = (ratio * 100) + '%';
+  }
+
+  progressBar.addEventListener('click', seekFromEvent);
 })();
 
 /* ===== Stars (dark mode clear sky) ===== */
