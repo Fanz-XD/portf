@@ -33,47 +33,144 @@
   });
 })();
 
-/* ===== Background music (YouTube) ===== */
+/* ===== Background music playlist (YouTube) ===== */
 (function(){
-  const YT_VIDEO_ID = 'T9Xg1aEo1UI';
+  const TRACKS = [
+    { id: 'j-2DGYNXRx0' },
+    { id: 'mTtShnQmUDc' },
+    { id: '5ZQlvQI7PGc' },
+    { id: 'rODr5Zfj8RA' },
+    { id: 'xlqgggOqIX0' },
+    { id: 'OSb14XGzkrs' },
+    { id: 'u9ARYzXyp08' },
+    { id: '6vNnB4oLZNo' },
+    { id: 'Fvt9hEAP6oQ' },
+    { id: 'lrIKt5uDWZo' },
+    { id: '3qiMJt-JBb4' }
+  ];
+
   const btn = document.getElementById('musicToggle');
+  const panel = document.getElementById('musicPanel');
   const mount = document.getElementById('ytMusicPlayer');
-  if(!btn || !mount) return;
+  const listEl = document.getElementById('musicTracklist');
+  const coverEl = document.getElementById('musicCover');
+  const labelEl = document.getElementById('musicNowLabel');
+  const titleEl = document.getElementById('musicNowTitle');
+  const progressFill = document.getElementById('musicProgressFill');
+  const playPauseBtn = document.getElementById('musicPlayPause');
+  const prevBtn = document.getElementById('musicPrev');
+  const nextBtn = document.getElementById('musicNext');
+  if(!btn || !panel || !mount || !listEl) return;
 
   let player = null;
   let apiReady = false;
   let playRequested = false;
+  let currentIndex = 0;
+  let progressTimer = null;
 
-  function setPlaying(isPlaying){
+  function cover(id){ return 'https://img.youtube.com/vi/' + id + '/hqdefault.jpg'; }
+  function trackName(i){ return TRACKS[i].title || ('Track ' + (i + 1)); }
+
+  function renderList(){
+    listEl.innerHTML = '';
+    TRACKS.forEach(function(t, i){
+      const li = document.createElement('li');
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'music-track' + (i === currentIndex ? ' active' : '');
+      b.innerHTML =
+        '<span class="music-track-num">' + (i + 1) + '</span>' +
+        '<img class="music-track-thumb" src="' + cover(t.id) + '" alt="">' +
+        '<span class="music-track-name">' + trackName(i) + '</span>';
+      b.addEventListener('click', function(){
+        playRequested = true;
+        playIndex(i);
+      });
+      li.appendChild(b);
+      listEl.appendChild(li);
+    });
+  }
+
+  function updateNowCard(){
+    coverEl.src = cover(TRACKS[currentIndex].id);
+    titleEl.textContent = trackName(currentIndex);
+    labelEl.textContent = 'Now playing';
+    listEl.querySelectorAll('.music-track').forEach(function(el, i){
+      el.classList.toggle('active', i === currentIndex);
+    });
+  }
+
+  function fetchTitles(){
+    TRACKS.forEach(function(t, i){
+      fetch('https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=' + t.id + '&format=json')
+        .then(function(r){ return r.ok ? r.json() : null; })
+        .then(function(data){
+          if(data && data.title){
+            TRACKS[i].title = data.title;
+            renderList();
+            if(i === currentIndex) updateNowCard();
+          }
+        })
+        .catch(function(){});
+    });
+  }
+
+  function setPlayingUI(isPlaying){
     btn.classList.toggle('is-playing', isPlaying);
     btn.setAttribute('aria-pressed', String(isPlaying));
-    btn.title = isPlaying ? 'Pause music' : 'Play background music';
+    playPauseBtn.textContent = isPlaying ? '⏸' : '▶';
+    playPauseBtn.setAttribute('aria-pressed', String(isPlaying));
+    playPauseBtn.setAttribute('aria-label', isPlaying ? 'Pause' : 'Play');
+    if(isPlaying){
+      if(progressTimer) clearInterval(progressTimer);
+      progressTimer = setInterval(updateProgress, 500);
+    }else if(progressTimer){
+      clearInterval(progressTimer);
+    }
+  }
+
+  function updateProgress(){
+    if(!player || typeof player.getDuration !== 'function') return;
+    const d = player.getDuration();
+    const c = player.getCurrentTime();
+    if(d > 0) progressFill.style.width = Math.min(100, (c / d) * 100) + '%';
   }
 
   function createPlayer(){
     player = new YT.Player(mount, {
       height: '0',
       width: '0',
-      videoId: YT_VIDEO_ID,
-      playerVars: {
-        autoplay: 0,
-        controls: 0,
-        disablekb: 1,
-        fs: 0,
-        loop: 1,
-        playlist: YT_VIDEO_ID,
-        playsinline: 1
-      },
+      videoId: TRACKS[currentIndex].id,
+      playerVars: { autoplay: 0, controls: 0, disablekb: 1, fs: 0, playsinline: 1 },
       events: {
         onReady: function(){
           if(playRequested) player.playVideo();
         },
         onStateChange: function(e){
-          if(e.data === YT.PlayerState.PLAYING) setPlaying(true);
-          else if(e.data === YT.PlayerState.PAUSED || e.data === YT.PlayerState.ENDED) setPlaying(false);
+          if(e.data === YT.PlayerState.PLAYING) setPlayingUI(true);
+          else if(e.data === YT.PlayerState.PAUSED) setPlayingUI(false);
+          else if(e.data === YT.PlayerState.ENDED){
+            playRequested = true;
+            playIndex((currentIndex + 1) % TRACKS.length);
+          }
         }
       }
     });
+  }
+
+  function playIndex(i){
+    currentIndex = ((i % TRACKS.length) + TRACKS.length) % TRACKS.length;
+    progressFill.style.width = '0%';
+    updateNowCard();
+    if(!apiReady){
+      loadApi();
+      return;
+    }
+    if(!player){
+      createPlayer();
+      return;
+    }
+    player.loadVideoById(TRACKS[currentIndex].id);
   }
 
   window.onYouTubeIframeAPIReady = function(){
@@ -89,7 +186,24 @@
     document.head.appendChild(tag);
   }
 
-  btn.addEventListener('click', function(){
+  renderList();
+  updateNowCard();
+  fetchTitles();
+
+  btn.addEventListener('click', function(e){
+    e.stopPropagation();
+    const isOpen = panel.classList.toggle('open');
+    btn.setAttribute('aria-expanded', String(isOpen));
+  });
+  document.addEventListener('click', function(e){
+    if(!panel.contains(e.target) && e.target !== btn){
+      panel.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+    }
+  });
+  panel.addEventListener('click', function(e){ e.stopPropagation(); });
+
+  playPauseBtn.addEventListener('click', function(){
     playRequested = true;
     if(!apiReady){
       loadApi();
@@ -101,6 +215,14 @@
     }else{
       player.playVideo();
     }
+  });
+  prevBtn.addEventListener('click', function(){
+    playRequested = true;
+    playIndex(currentIndex - 1);
+  });
+  nextBtn.addEventListener('click', function(){
+    playRequested = true;
+    playIndex(currentIndex + 1);
   });
 })();
 
