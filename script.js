@@ -46,7 +46,20 @@
     { id: '6vNnB4oLZNo' },
     { id: 'Fvt9hEAP6oQ' },
     { id: 'lrIKt5uDWZo' },
-    { id: '3qiMJt-JBb4' }
+    { id: '3qiMJt-JBb4' },
+    { id: 'IBLmo13vlq4' },
+    { id: 'gbcexRAWJyY' },
+    { id: 'hRr7qRb-7k4' },
+    { id: 'GVQON-muEFc' },
+    { id: 'pOm2JieAuCA' },
+    { id: 'DCYmJDO2_IE' },
+    { id: 'TdrL3QxjyVw' },
+    { id: 'ko70cExuzZM' },
+    { id: '4tPJPE4uOEo' },
+    { id: 'DeumyOzKqgI' },
+    { id: 'O1PkZaFy61Y' },
+    { id: '1lrFsXkT_rM' },
+    { id: 'a2giXO6eyuI' }
   ];
 
   const btn = document.getElementById('musicToggle');
