@@ -3,491 +3,112 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Daftar Akun</title>
+<title>Daftar — Affan Pratangga</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="auth.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+  (function(){
+    try{
+      var saved = localStorage.getItem('affan-theme');
+      var dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if(dark) document.documentElement.setAttribute('data-theme','dark');
+    }catch(e){}
+  })();
   // Ganti dua nilai ini dengan URL & anon key dari project Supabase kamu
   // (Project Settings -> API di dashboard Supabase)
   const SUPABASE_URL = 'https://qkbhwlwsergsxpgczvjj.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFrYmh3bHdzZXJnc3hwZ2N6dmpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyODQwNzUsImV4cCI6MjEwNDg2MDA3NX0.MWCWUTUL1GjBPLVqe_tSBHWzh2R48h3Xm_zFsZYpByI';
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 </script>
-<style>
-  :root{
-    --bg-page:#eaf4ff;
-    --panel-1:#bfe3ff;
-    --panel-2:#7fb8ea;
-    --panel-3:#3d7cb8;
-    --panel-deep:#1f4e79;
-    --white:#ffffff;
-    --ink:#16283a;
-    --ink-muted:#64829a;
-    --line:#dceefb;
-    --danger:#e0554f;
-    --warn:#e0a13a;
-    --success:#2fae6b;
-    --shadow: 0 20px 50px -20px rgba(31,78,121,0.35);
-  }
-
-  *{box-sizing:border-box;}
-  html,body{height:100%;}
-  body{
-    margin:0;
-    min-height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:var(--bg-page);
-    font-family:'Inter',sans-serif;
-    color:var(--ink);
-    padding:24px;
-  }
-
-  .page{
-    width:100%;
-    max-width:1000px;
-    min-height:620px;
-    display:grid;
-    grid-template-columns:1.05fr 1fr;
-    background:var(--white);
-    border-radius:28px;
-    overflow:hidden;
-    box-shadow:var(--shadow);
-  }
-
-  .back-link{
-    position:fixed;
-    top:22px; left:24px;
-    display:flex; align-items:center; gap:6px;
-    font-family:'Inter',sans-serif;
-    font-size:0.85rem;
-    font-weight:600;
-    color:var(--ink);
-    text-decoration:none;
-    z-index:10;
-  }
-  .back-link svg{ width:16px; height:16px; }
-  .back-link:hover{ color:var(--panel-3); }
-
-  /* ---------- VISUAL PANEL ---------- */
-  .visual-panel{
-    position:relative;
-    background:linear-gradient(160deg,var(--panel-2),var(--panel-3) 60%,var(--panel-deep));
-    overflow:hidden;
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
-    padding:44px 40px;
-    color:var(--white);
-  }
-
-  .glow-follow{
-    position:absolute;
-    inset:0;
-    background:radial-gradient(320px circle at var(--gx,50%) var(--gy,30%), rgba(255,255,255,0.28), transparent 60%);
-    transition:background-position .1s linear;
-    pointer-events:none;
-  }
-
-  .blob{
-    position:absolute;
-    border-radius:50%;
-    filter:blur(10px);
-    opacity:0.5;
-    background:radial-gradient(circle at 30% 30%, #ffffff, var(--panel-1) 70%);
-  }
-  .blob.b1{ width:260px; height:260px; top:-60px; left:-60px; animation:float1 14s ease-in-out infinite; }
-  .blob.b2{ width:180px; height:180px; bottom:10%; right:-40px; animation:float2 18s ease-in-out infinite; opacity:0.35;}
-  .blob.b3{ width:120px; height:120px; bottom:-30px; left:20%; animation:float1 20s ease-in-out infinite reverse; opacity:0.3;}
-
-  @keyframes float1{
-    0%,100%{ transform:translate(0,0) scale(1); }
-    50%{ transform:translate(30px,25px) scale(1.08); }
-  }
-  @keyframes float2{
-    0%,100%{ transform:translate(0,0) scale(1); }
-    50%{ transform:translate(-25px,-20px) scale(0.94); }
-  }
-
-  .particles{ position:absolute; inset:0; }
-  .particle{
-    position:absolute;
-    width:4px; height:4px;
-    background:rgba(255,255,255,0.7);
-    border-radius:50%;
-    animation:drift linear infinite;
-  }
-  @keyframes drift{
-    0%{ transform:translateY(0); opacity:0; }
-    10%{ opacity:0.8;}
-    90%{ opacity:0.6;}
-    100%{ transform:translateY(-420px); opacity:0; }
-  }
-
-  .brand{ position:relative; display:flex; align-items:center; gap:10px; font-family:'Sora',sans-serif; font-weight:700; font-size:1.05rem; z-index:2;}
-  .brand-mark{
-    width:34px;height:34px;border-radius:10px;
-    background:rgba(255,255,255,0.18);
-    display:flex;align-items:center;justify-content:center;
-    border:1px solid rgba(255,255,255,0.35);
-  }
-  .brand-mark svg{ width:18px; height:18px; }
-
-  .visual-copy{ position:relative; z-index:2; max-width:320px; }
-  .visual-copy h2{
-    font-family:'Sora',sans-serif;
-    font-weight:700;
-    font-size:1.7rem;
-    line-height:1.25;
-    margin:0 0 12px;
-  }
-  .visual-copy p{
-    margin:0;
-    font-size:0.92rem;
-    line-height:1.6;
-    color:rgba(255,255,255,0.85);
-  }
-
-  .stat-row{ position:relative; z-index:2; display:flex; gap:28px; }
-  .stat-row div b{ display:block; font-family:'Sora',sans-serif; font-size:1.3rem; }
-  .stat-row div span{ font-size:0.78rem; color:rgba(255,255,255,0.75); }
-
-  /* ---------- FORM PANEL ---------- */
-  .form-panel{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:40px;
-  }
-
-  .form-card{
-    width:100%;
-    max-width:360px;
-    transform-style:preserve-3d;
-    transition:transform .15s ease;
-  }
-  .form-card.shake{ animation:shake .45s; }
-  @keyframes shake{
-    10%,90%{ transform:translateX(-3px); }
-    20%,80%{ transform:translateX(6px); }
-    30%,50%,70%{ transform:translateX(-10px); }
-    40%,60%{ transform:translateX(10px); }
-  }
-
-  .form-card h1{
-    font-family:'Sora',sans-serif;
-    font-size:1.55rem;
-    margin:0 0 6px;
-  }
-  .form-card .subtitle{
-    margin:0 0 28px;
-    color:var(--ink-muted);
-    font-size:0.9rem;
-  }
-
-  .field{
-    position:relative;
-    margin-bottom:20px;
-  }
-  .field input{
-    width:100%;
-    padding:16px 14px 8px;
-    border-radius:12px;
-    border:1.5px solid var(--line);
-    background:#f7fbff;
-    font-family:'Inter',sans-serif;
-    font-size:0.95rem;
-    color:var(--ink);
-    outline:none;
-    transition:border-color .2s, box-shadow .2s, background .2s;
-  }
-  .field input:focus{
-    border-color:var(--panel-3);
-    background:var(--white);
-    box-shadow:0 0 0 4px rgba(63,140,199,0.12);
-  }
-  .field label{
-    position:absolute;
-    left:14px; top:15px;
-    font-size:0.95rem;
-    color:var(--ink-muted);
-    pointer-events:none;
-    transition:all .18s ease;
-  }
-  .field input:focus + label,
-  .field input:not(:placeholder-shown) + label{
-    top:6px; font-size:0.68rem; color:var(--panel-3); font-weight:600; letter-spacing:.2px;
-  }
-  .field.has-error input{ border-color:var(--danger); background:#fff6f5; }
-  .field.has-error label{ color:var(--danger); }
-  .field.is-valid input{ border-color:var(--success); }
-
-  .error-msg{
-    display:block;
-    min-height:16px;
-    font-size:0.75rem;
-    color:var(--danger);
-    margin-top:5px;
-  }
-
-  .toggle-pass{
-    position:absolute;
-    right:10px; top:12px;
-    background:none; border:none; cursor:pointer;
-    color:var(--ink-muted);
-    padding:6px;
-    display:flex;
-  }
-  .toggle-pass:hover{ color:var(--panel-3); }
-  .toggle-pass svg{ width:18px; height:18px; }
-
-  .strength-meter{
-    height:4px; border-radius:4px; background:var(--line);
-    margin-top:8px; overflow:hidden;
-  }
-  .strength-meter span{
-    display:block; height:100%; width:0%;
-    background:var(--danger);
-    border-radius:4px;
-    transition:width .25s ease, background .25s ease;
-  }
-  .strength-label{ font-size:0.72rem; color:var(--ink-muted); margin-top:4px; display:block; }
-
-  .row{
-    display:flex; align-items:center; justify-content:space-between;
-    margin-bottom:24px;
-  }
-  .switch{ display:flex; align-items:center; gap:8px; font-size:0.85rem; color:var(--ink-muted); cursor:pointer; user-select:none; }
-  .switch input{ display:none; }
-  .switch .slider{
-    width:36px; height:20px; border-radius:20px; background:var(--line);
-    position:relative; transition:background .2s;
-    flex-shrink:0;
-  }
-  .switch .slider::after{
-    content:''; position:absolute; top:2px; left:2px;
-    width:16px; height:16px; border-radius:50%; background:var(--white);
-    box-shadow:0 1px 3px rgba(0,0,0,0.25);
-    transition:transform .2s;
-  }
-  .switch input:checked + .slider{ background:var(--panel-3); }
-  .switch input:checked + .slider::after{ transform:translateX(16px); }
-
-  .link{ font-size:0.85rem; color:var(--panel-3); text-decoration:none; }
-  .link:hover{ text-decoration:underline; }
-
-  .submit-btn{
-    width:100%;
-    padding:14px;
-    border:none;
-    border-radius:12px;
-    background:linear-gradient(120deg,var(--panel-3),var(--panel-deep));
-    color:var(--white);
-    font-family:'Sora',sans-serif;
-    font-weight:600;
-    font-size:0.95rem;
-    cursor:pointer;
-    position:relative;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    min-height:50px;
-    transition:transform .15s ease, box-shadow .15s ease;
-  }
-  .submit-btn:hover{ transform:translateY(-2px); box-shadow:0 12px 24px -10px rgba(31,78,121,0.5); }
-  .submit-btn:active{ transform:translateY(0); }
-
-  .btn-loader{
-    display:none;
-    width:18px; height:18px;
-    border:2.5px solid rgba(255,255,255,0.4);
-    border-top-color:var(--white);
-    border-radius:50%;
-    animation:spin .7s linear infinite;
-  }
-  @keyframes spin{ to{ transform:rotate(360deg); } }
-
-  .btn-check{
-    display:none;
-  }
-  .btn-check svg{ width:20px; height:20px; }
-
-  .submit-btn.loading .btn-text{ display:none; }
-  .submit-btn.loading .btn-loader{ display:inline-block; }
-  .submit-btn.success{ background:linear-gradient(120deg,var(--success),#1f8a53); }
-  .submit-btn.success .btn-text,
-  .submit-btn.success .btn-loader{ display:none; }
-  .submit-btn.success .btn-check{ display:inline-flex; animation:pop .35s ease; }
-  @keyframes pop{ 0%{ transform:scale(0); } 70%{ transform:scale(1.2); } 100%{ transform:scale(1); } }
-
-  .divider{
-    text-align:center;
-    color:var(--ink-muted);
-    font-size:0.78rem;
-    margin:24px 0;
-    position:relative;
-  }
-  .divider::before,.divider::after{
-    content:''; position:absolute; top:50%; width:38%; height:1px; background:var(--line);
-  }
-  .divider::before{ left:0; }
-  .divider::after{ right:0; }
-
-  .social-row{ display:flex; gap:12px; }
-  .social-btn{
-    flex:1;
-    padding:11px;
-    border-radius:12px;
-    border:1.5px solid var(--line);
-    background:var(--white);
-    cursor:pointer;
-    display:flex; align-items:center; justify-content:center; gap:8px;
-    font-family:'Inter',sans-serif; font-size:0.85rem; color:var(--ink);
-    transition:border-color .2s, transform .15s;
-  }
-  .social-btn:hover{ border-color:var(--panel-3); transform:translateY(-2px); }
-  .social-btn svg{ width:16px; height:16px; }
-
-  .signup-text{
-    text-align:center; font-size:0.85rem; color:var(--ink-muted); margin:24px 0 0;
-  }
-  .signup-text a{ color:var(--panel-3); font-weight:600; text-decoration:none; }
-  .signup-text a:hover{ text-decoration:underline; }
-
-  @media (max-width:760px){
-    .page{ grid-template-columns:1fr; }
-    .visual-panel{ display:none; }
-  }
-
-  @media (prefers-reduced-motion: reduce){
-    .blob, .particle, .form-card, .submit-btn, .social-btn{ animation:none !important; transition:none !important; }
-  }
-</style>
 </head>
 <body>
 
-<a href="index.html" class="back-link">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
-  Kembali ke portfolio
-</a>
+<header class="auth-header">
+  <nav class="wrap">
+    <a href="index.html" class="brand">Affan Pratangga</a>
+    <button class="tool-btn" id="themeToggle" aria-label="Toggle dark mode" title="Theme">
+      <svg id="themeIcon" width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <a href="index.html" class="auth-back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      Kembali ke portfolio
+    </a>
+  </nav>
+</header>
 
-<div class="page">
+<main class="auth-main">
+  <div class="auth-card">
+    <p class="auth-eyebrow">auth/register</p>
+    <h1>Buat akun baru</h1>
+    <p class="auth-sub">Daftar untuk mulai menggunakan akun Anda.</p>
 
-  <div class="visual-panel" id="visualPanel">
-    <div class="glow-follow" id="glow"></div>
-    <div class="blob b1"></div>
-    <div class="blob b2"></div>
-    <div class="blob b3"></div>
-    <div class="particles" id="particles"></div>
+    <form id="registerForm" class="form-card" novalidate>
+      <div class="field" id="nameField">
+        <input type="text" id="fullname" placeholder=" " autocomplete="name">
+        <label for="fullname">Nama lengkap</label>
+        <span class="error-msg" id="nameError"></span>
+      </div>
 
-    <div class="brand">
-      <span class="brand-mark">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2 4 6v6c0 5 3.4 8.7 8 10 4.6-1.3 8-5 8-10V6l-8-4Z" stroke="#fff" stroke-width="1.6"/></svg>
-      </span>
-      SecureGate
-    </div>
+      <div class="field" id="emailField">
+        <input type="email" id="email" placeholder=" " autocomplete="email">
+        <label for="email">Alamat email</label>
+        <span class="error-msg" id="emailError"></span>
+      </div>
 
-    <div class="visual-copy">
-      <h2>Akses yang cepat, tampilan yang tenang.</h2>
-      <p>Panel ini menampilkan sedikit gerakan ambient untuk suasana yang hidup, sementara form di sisi kanan tetap fokus dan mudah diisi.</p>
-    </div>
-
-    <div class="stat-row">
-      <div><b>128k</b><span>Pengguna aktif</span></div>
-      <div><b>99.9%</b><span>Waktu aktif</span></div>
-      <div><b>4.9/5</b><span>Kepuasan</span></div>
-    </div>
-  </div>
-
-  <div class="form-panel">
-    <div class="form-card" id="formCard">
-      <h1>Buat akun baru</h1>
-      <p class="subtitle">Daftar untuk mulai menggunakan akun Anda</p>
-
-      <form id="loginForm" novalidate>
-        <div class="field" id="nameField">
-          <input type="text" id="fullname" placeholder=" " autocomplete="name">
-          <label for="fullname">Nama lengkap</label>
-          <span class="error-msg" id="nameError"></span>
-        </div>
-
-        <div class="field" id="emailField">
-          <input type="email" id="email" placeholder=" " autocomplete="email">
-          <label for="email">Alamat email</label>
-          <span class="error-msg" id="emailError"></span>
-        </div>
-
-        <div class="field" id="passwordField">
-          <input type="password" id="password" placeholder=" " autocomplete="new-password">
-          <label for="password">Kata sandi</label>
-          <button type="button" class="toggle-pass" id="togglePass" aria-label="Tampilkan kata sandi">
-            <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/>
-              <circle cx="12" cy="12" r="3"/>
-            </svg>
-          </button>
-          <div class="strength-meter"><span id="strengthBar"></span></div>
-          <span class="strength-label" id="strengthLabel"></span>
-          <span class="error-msg" id="passwordError"></span>
-        </div>
-
-        <button type="submit" class="submit-btn" id="submitBtn">
-          <span class="btn-text">Daftar</span>
-          <span class="btn-loader"></span>
-          <span class="btn-check">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M4 12l5 5L20 6"/></svg>
-          </span>
+      <div class="field" id="passwordField">
+        <input type="password" id="password" placeholder=" " autocomplete="new-password">
+        <label for="password">Kata sandi</label>
+        <button type="button" class="toggle-pass" id="togglePass" aria-label="Tampilkan kata sandi">
+          <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
         </button>
-        <p class="form-note" id="formNote" style="margin-top:14px;font-size:0.8rem;color:var(--ink-muted);text-align:center;"></p>
-      </form>
+        <div class="strength-meter"><span id="strengthBar"></span></div>
+        <span class="strength-label" id="strengthLabel"></span>
+        <span class="error-msg" id="passwordError"></span>
+      </div>
 
-      <p class="signup-text">Sudah punya akun? <a href="login.html">Masuk di sini</a></p>
-    </div>
+      <button type="submit" class="submit-btn" id="submitBtn">
+        <span class="btn-text">Daftar</span>
+        <span class="btn-loader"></span>
+        <span class="btn-check">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 12l5 5L20 6"/></svg>
+        </span>
+      </button>
+      <p class="form-note" id="formNote"></p>
+    </form>
+
+    <p class="auth-foot">Sudah punya akun? <a href="login.html">Masuk di sini</a></p>
   </div>
-
-</div>
+</main>
 
 <script>
-  // ---------- Ambient particles ----------
-  const particleWrap = document.getElementById('particles');
-  for (let i = 0; i < 18; i++) {
-    const p = document.createElement('div');
-    p.className = 'particle';
-    p.style.left = Math.random() * 100 + '%';
-    p.style.bottom = '-10px';
-    p.style.animationDuration = (8 + Math.random() * 10) + 's';
-    p.style.animationDelay = (Math.random() * 10) + 's';
-    p.style.width = p.style.height = (2 + Math.random() * 3) + 'px';
-    particleWrap.appendChild(p);
-  }
+  /* ===== Theme toggle (shared key with main site) ===== */
+  (function(){
+    const root = document.documentElement;
+    const btn = document.getElementById('themeToggle');
+    const iconPath = document.querySelector('#themeIcon path');
+    const SUN = "M12 4V2M12 22v-2M4.93 4.93 3.51 3.51M20.49 20.49l-1.42-1.42M4 12H2m20 0h-2M4.93 19.07l-1.42 1.42M20.49 3.51l-1.42 1.42M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z";
+    const MOON = "M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z";
+    function apply(theme){
+      if(theme === 'dark'){ root.setAttribute('data-theme','dark'); } else { root.removeAttribute('data-theme'); }
+      if(iconPath) iconPath.setAttribute('d', theme === 'dark' ? SUN : MOON);
+      btn.setAttribute('aria-pressed', theme === 'dark');
+    }
+    btn.addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      apply(next);
+      localStorage.setItem('affan-theme', next);
+    });
+    apply(root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
+  })();
 
-  // ---------- Cursor glow follow on visual panel ----------
-  const visualPanel = document.getElementById('visualPanel');
-  const glow = document.getElementById('glow');
-  visualPanel.addEventListener('mousemove', (e) => {
-    const rect = visualPanel.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    glow.style.setProperty('--gx', x + '%');
-    glow.style.setProperty('--gy', y + '%');
-  });
-
-  // ---------- Card tilt on form panel ----------
-  const formCard = document.getElementById('formCard');
-  const formPanel = document.querySelector('.form-panel');
-  formPanel.addEventListener('mousemove', (e) => {
-    const rect = formPanel.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    formCard.style.transform = `rotateY(${x * 4}deg) rotateX(${-y * 4}deg)`;
-  });
-  formPanel.addEventListener('mouseleave', () => {
-    formCard.style.transform = 'rotateY(0deg) rotateX(0deg)';
-  });
-
-  // ---------- Password show/hide ----------
+  /* ===== Password show/hide ===== */
   const password = document.getElementById('password');
   const togglePass = document.getElementById('togglePass');
   const eyeIcon = document.getElementById('eyeIcon');
@@ -499,7 +120,7 @@
     eyeIcon.innerHTML = show ? eyeClosed : eyeOpen;
   });
 
-  // ---------- Password strength ----------
+  /* ===== Password strength ===== */
   const strengthBar = document.getElementById('strengthBar');
   const strengthLabel = document.getElementById('strengthLabel');
   password.addEventListener('input', () => {
@@ -510,14 +131,13 @@
     if (/[A-Z]/.test(v) && /[a-z]/.test(v)) score++;
     if (/[0-9]/.test(v)) score++;
     if (/[^A-Za-z0-9]/.test(v)) score++;
-
     const levels = [
-      { pct: 0,   color: 'var(--line)',    label: '' },
-      { pct: 20,  color: 'var(--danger)',  label: 'Lemah' },
-      { pct: 45,  color: 'var(--danger)',  label: 'Lemah' },
-      { pct: 65,  color: 'var(--warn)',    label: 'Cukup' },
-      { pct: 85,  color: '#5fb37a',        label: 'Kuat' },
-      { pct: 100, color: 'var(--success)', label: 'Sangat kuat' }
+      { pct: 0,   color: 'var(--rule)',  label: '' },
+      { pct: 20,  color: '#C0503F',      label: 'Lemah' },
+      { pct: 45,  color: '#C0503F',      label: 'Lemah' },
+      { pct: 65,  color: 'var(--brass)', label: 'Cukup' },
+      { pct: 85,  color: 'var(--accent)',label: 'Kuat' },
+      { pct: 100, color: 'var(--accent)',label: 'Sangat kuat' }
     ];
     const lvl = levels[v.length === 0 ? 0 : Math.min(score, 5)];
     strengthBar.style.width = lvl.pct + '%';
@@ -525,7 +145,10 @@
     strengthLabel.textContent = v.length === 0 ? '' : lvl.label;
   });
 
-  // ---------- Email validation ----------
+  /* ===== Name + email validation ===== */
+  const nameField = document.getElementById('nameField');
+  const nameError = document.getElementById('nameError');
+  const fullname = document.getElementById('fullname');
   const emailField = document.getElementById('emailField');
   const email = document.getElementById('email');
   const emailError = document.getElementById('emailError');
@@ -539,15 +162,18 @@
   email.addEventListener('input', validateEmail);
   email.addEventListener('blur', validateEmail);
 
-  // ---------- Submit flow (daftar akun sungguhan via Supabase) ----------
-  const nameField = document.getElementById('nameField');
-  const nameError = document.getElementById('nameError');
-  const fullname = document.getElementById('fullname');
+  /* ===== Submit flow (daftar akun sungguhan via Supabase) ===== */
   const passwordField = document.getElementById('passwordField');
   const passwordError = document.getElementById('passwordError');
-  const form = document.getElementById('loginForm');
+  const form = document.getElementById('registerForm');
   const submitBtn = document.getElementById('submitBtn');
   const formNote = document.getElementById('formNote');
+
+  function shake(){
+    form.classList.remove('shake');
+    void form.offsetWidth;
+    form.classList.add('shake');
+  }
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -560,12 +186,7 @@
     passwordField.classList.toggle('has-error', !passOk);
     passwordError.textContent = passOk ? '' : 'Kata sandi minimal 6 karakter';
 
-    if (!nameOk || !emailOk || !passOk) {
-      formCard.classList.remove('shake');
-      void formCard.offsetWidth;
-      formCard.classList.add('shake');
-      return;
-    }
+    if (!nameOk || !emailOk || !passOk) { shake(); return; }
 
     submitBtn.classList.add('loading');
     submitBtn.disabled = true;
@@ -575,9 +196,7 @@
     const { data, error } = await supabaseClient.auth.signUp({
       email: email.value.trim(),
       password: password.value,
-      options: {
-        data: { full_name: fullname.value.trim() }
-      }
+      options: { data: { full_name: fullname.value.trim() } }
     });
 
     submitBtn.classList.remove('loading');
@@ -586,17 +205,13 @@
       submitBtn.disabled = false;
       passwordField.classList.add('has-error');
       passwordError.textContent = error.message;
-      formCard.classList.remove('shake');
-      void formCard.offsetWidth;
-      formCard.classList.add('shake');
+      shake();
       return;
     }
 
     submitBtn.classList.add('success');
-    formNote.textContent = 'Akun dibuat. Cek email untuk konfirmasi sebelum login (jika verifikasi email diaktifkan).';
-    setTimeout(() => {
-      window.location.href = 'login.html';
-    }, 1800);
+    formNote.textContent = 'Akun dibuat. Cek email untuk konfirmasi sebelum masuk (jika verifikasi email diaktifkan).';
+    setTimeout(() => { window.location.href = 'login.html'; }, 1800);
   });
 </script>
 

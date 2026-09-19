@@ -3,37 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Affan.dev</title>
+<title>Affan Pratangga — security &amp; web</title>
+<meta name="description" content="Affan Pratangga — bug hunting, website security monitoring and web development, from Lamongan, Indonesia.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<script>
+  // applied before first paint so the intro never flashes the wrong theme
+  (function(){
+    try{
+      var saved = localStorage.getItem('affan-theme');
+      var dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if(dark) document.documentElement.setAttribute('data-theme','dark');
+    }catch(e){}
+  })();
+</script>
 </head>
 <body>
 
-<div class="intro-overlay" id="introOverlay" role="status" aria-live="polite">
-  <div class="terminal intro-terminal">
-    <div class="terminal-bar">
-      <span class="terminal-dot"></span><span class="terminal-dot"></span><span class="terminal-dot"></span>
-      <span class="terminal-title">visitor@affan.dev: ~</span>
-    </div>
-    <div class="terminal-body">
-      <p class="terminal-line"><span class="terminal-prompt intro-prompt">$</span> <span id="introCmd" class="intro-cmd"></span><span class="terminal-cursor" id="introCursor"></span></p>
-      <div class="intro-output" id="introOutput">
-        <h1 class="intro-headline">Welcome to my website</h1>
-        <div class="intro-bar-wrap"><div class="intro-bar" id="introBar"></div></div>
-        <p class="intro-status"><span class="intro-ok">✓</span> ready — loading Affan.dev</p>
-      </div>
+<div class="intro" id="introOverlay" role="status" aria-live="polite">
+  <div class="intro-inner">
+    <p class="intro-line"><span class="intro-prompt">affan@lamongan</span><span class="intro-sep">:~$</span> <span id="introCmd"></span><span class="caret" id="introCursor"></span></p>
+    <div class="intro-out" id="introOutput">
+      <span class="intro-name">Affan Pratangga</span>
+      <div class="intro-rule"><i id="introBar"></i></div>
     </div>
   </div>
-  <button class="intro-skip" id="introSkip" type="button">Skip intro →</button>
+  <button class="intro-skip" id="introSkip" type="button">Skip</button>
 </div>
 <script>
 (function(){
   var overlay = document.getElementById('introOverlay');
   if(!overlay) return;
-  var finished = false;
-  var timers = [];
+  var finished = false, timers = [];
 
   function finish(){
     if(finished) return;
@@ -45,13 +48,10 @@
     }catch(e){}
     document.documentElement.style.overflow = '';
     overlay.classList.add('closing');
-    setTimeout(function(){ overlay.style.display = 'none'; }, 950);
+    setTimeout(function(){ overlay.style.display = 'none'; }, 800);
   }
 
-  // Hard safety net: whatever happens above, the overlay is force-closed
-  // after 7s so a broken script.js (or any other error) can never leave
-  // the site stuck behind the intro.
-  timers.push(setTimeout(finish, 7000));
+  timers.push(setTimeout(finish, 6000));
 
   var skipBtn = document.getElementById('introSkip');
   if(skipBtn) skipBtn.addEventListener('click', finish);
@@ -62,18 +62,11 @@
 
   try{
     document.documentElement.style.overflow = 'hidden';
-    var celestial = document.getElementById('celestial');
-    if(celestial) celestial.classList.add('intro-rise');
-
-    timers.push(setTimeout(function(){
-      try{ if(typeof WeatherFX !== 'undefined') WeatherFX.setMode('windy'); }catch(e){}
-    }, 300));
-
     var cmdEl = document.getElementById('introCmd');
     var cursor = document.getElementById('introCursor');
     var output = document.getElementById('introOutput');
     var bar = document.getElementById('introBar');
-    var text = 'cd affan.dev && ./welcome.sh';
+    var text = './welcome';
 
     timers.push(setTimeout(function(){
       var i = 0;
@@ -85,92 +78,103 @@
           timers.push(setTimeout(function(){
             if(cursor) cursor.remove();
             if(output) output.classList.add('show');
-            if(bar) requestAnimationFrame(function(){ bar.style.width = '100%'; });
-            timers.push(setTimeout(finish, 2200));
-          }, 260));
+            if(bar) requestAnimationFrame(function(){ bar.style.transform = 'scaleX(1)'; });
+            timers.push(setTimeout(finish, 1500));
+          }, 220));
         }
-      }, 32);
+      }, 55);
       timers.push(t);
-    }, 900));
-  }catch(e){
-    finish();
-  }
+    }, 500));
+  }catch(e){ finish(); }
 })();
 </script>
 
 <div class="progress-bar" id="progressBar"></div>
 
-<div class="celestial" id="celestial"></div>
+<nav class="rail" aria-label="Section index">
+  <a class="rail-dot" data-rail href="#about"><span>About</span></a>
+  <a class="rail-dot" data-rail href="#education"><span>Education</span></a>
+  <a class="rail-dot" data-rail href="#certificates"><span>Records</span></a>
+  <a class="rail-dot" data-rail href="#skills"><span>Skills</span></a>
+  <a class="rail-dot" data-rail href="#roadmap"><span>Roadmap</span></a>
+  <a class="rail-dot" data-rail href="#contact"><span>Contact</span></a>
+</nav>
+
 <div class="stars" id="stars"></div>
 <div class="sky" id="sky"></div>
 <div class="weather-tint" id="weatherTint"></div>
 <canvas class="weather-canvas" id="weatherCanvas"></canvas>
-<div class="cursor-glow" id="cursorGlow"></div>
 
 <header>
   <nav class="wrap">
-    <div class="brand">Affan<span>.dev</span></div>
+    <a href="#home" class="brand">Affan Pratangga</a>
+
     <ul class="nav-links" id="navLinks">
       <li><a href="#about" data-nav>About</a></li>
       <li><a href="#education" data-nav>Education</a></li>
-      <li><a href="#certificates" data-nav>Certificates</a></li>
+      <li><a href="#certificates" data-nav>Records</a></li>
       <li><a href="#skills" data-nav>Skills</a></li>
       <li><a href="#roadmap" data-nav>Roadmap</a></li>
       <li><a href="#contact" data-nav>Contact</a></li>
     </ul>
+
     <div class="nav-tools">
       <div class="weather-widget">
-        <button class="tool-btn" id="weatherToggle" aria-haspopup="true" aria-expanded="false" aria-label="Change weather effect" title="Weather effects">
-          <svg id="weatherIcon" width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M6.5 17a4.5 4.5 0 0 1-.5-8.98A6 6 0 0 1 17.6 9.5 4 4 0 0 1 17 17H6.5Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <button class="tool-btn" id="weatherToggle" aria-haspopup="true" aria-expanded="false" aria-label="Change weather effect" title="Weather">
+          <svg id="weatherIcon" width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M6.5 17a4.5 4.5 0 0 1-.5-8.98A6 6 0 0 1 17.6 9.5 4 4 0 0 1 17 17H6.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
-        <div class="weather-menu" id="weatherMenu" role="menu">
-          <button class="weather-option active" data-weather="clear" role="menuitem"><span class="w-ic">☀</span>Clear sky</button>
-          <button class="weather-option" data-weather="drizzle" role="menuitem"><span class="w-ic">🌦</span>Light drizzle</button>
-          <button class="weather-option" data-weather="rain" role="menuitem"><span class="w-ic">🌧</span>Rain</button>
-          <button class="weather-option" data-weather="windy" role="menuitem"><span class="w-ic">🍃</span>Windy</button>
+        <div class="menu weather-menu" id="weatherMenu" role="menu">
+          <button class="weather-option active" data-weather="clear" role="menuitem"><i></i>Clear</button>
+          <button class="weather-option" data-weather="drizzle" role="menuitem"><i></i>Drizzle</button>
+          <button class="weather-option" data-weather="rain" role="menuitem"><i></i>Rain</button>
+          <button class="weather-option" data-weather="windy" role="menuitem"><i></i>Wind</button>
         </div>
       </div>
-      <button class="tool-btn" id="themeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">
-        <svg id="themeIcon" width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+
+      <button class="tool-btn" id="themeToggle" aria-label="Toggle dark mode" title="Theme">
+        <svg id="themeIcon" width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
+
       <div class="music-widget">
-        <button class="tool-btn" id="musicToggle" aria-pressed="false" aria-haspopup="true" aria-expanded="false" aria-label="Play background music" title="Background music">
-          <svg id="musicIconNote" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 18V5l12-2v13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3" stroke="currentColor" stroke-width="1.7"/><circle cx="18" cy="16" r="3" stroke="currentColor" stroke-width="1.7"/></svg>
+        <button class="tool-btn" id="musicToggle" aria-pressed="false" aria-haspopup="true" aria-expanded="false" aria-label="Background music" title="Music">
+          <svg id="musicIconNote" width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M9 18V5l12-2v13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3" stroke="currentColor" stroke-width="1.5"/><circle cx="18" cy="16" r="3" stroke="currentColor" stroke-width="1.5"/></svg>
           <span class="music-bars"><span></span><span></span><span></span></span>
         </button>
-        <div class="music-panel" id="musicPanel" role="menu" aria-label="Playlist">
-          <div class="music-panel-head">
-            <div class="music-panel-logo">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 18V5l12-2v13" stroke="#0b0b0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3" stroke="#0b0b0b" stroke-width="2"/><circle cx="18" cy="16" r="3" stroke="#0b0b0b" stroke-width="2"/></svg>
-            </div>
-            <span>Affan.dev Playlist</span>
-          </div>
+        <div class="menu music-panel" id="musicPanel" role="menu" aria-label="Playlist">
           <div class="music-now">
             <img class="music-cover" id="musicCover" src="" alt="">
             <div class="music-now-info">
-              <div class="music-now-label" id="musicNowLabel">Ready to play</div>
-              <div class="music-now-title" id="musicNowTitle">Pilih lagu di bawah</div>
+              <div class="music-now-label" id="musicNowLabel">Nothing playing</div>
+              <div class="music-now-title" id="musicNowTitle">Pick a track below</div>
             </div>
           </div>
-          <div class="music-controls">
-            <button type="button" id="musicPrev" aria-label="Previous track">⏮</button>
-            <button type="button" id="musicPlayPause" aria-label="Play" aria-pressed="false">▶</button>
-            <button type="button" id="musicNext" aria-label="Next track">⏭</button>
-          </div>
           <div class="music-progress" id="musicProgress"><div class="music-progress-fill" id="musicProgressFill"></div></div>
+          <div class="music-controls">
+            <button type="button" id="musicPrev" aria-label="Previous track">&#9664;&#9664;</button>
+            <button type="button" id="musicPlayPause" aria-label="Play" aria-pressed="false">&#9654;</button>
+            <button type="button" id="musicNext" aria-label="Next track">&#9654;&#9654;</button>
+          </div>
           <ul class="music-tracklist" id="musicTracklist"></ul>
         </div>
       </div>
-      <a href="login.html" class="btn btn-primary" id="loginNavBtn" style="padding:8px 18px; font-size:0.85rem;"><span>Login</span></a>
+
+      <button class="tool-btn tool-btn--wide" id="paletteToggle" aria-label="Open command palette" title="Search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.6"/><path d="m20 20-3.4-3.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <kbd class="palette-kbd" id="paletteKbd">Ctrl K</kbd>
+      </button>
+
+      <a href="login.html" class="btn btn-small" id="loginNavBtn"><span>Login</span></a>
     </div>
+
     <button class="nav-toggle" id="navToggle" aria-label="Open menu">
-      <span></span><span></span><span></span>
+      <span></span><span></span>
     </button>
   </nav>
+
   <div class="mobile-menu" id="mobileMenu">
     <a href="#about">About</a>
     <a href="#education">Education</a>
-    <a href="#certificates">Certificates</a>
+    <a href="#certificates">Records</a>
     <a href="#skills">Skills</a>
     <a href="#roadmap">Roadmap</a>
     <a href="#contact">Contact</a>
@@ -182,144 +186,163 @@
 
   <section class="hero" id="home">
     <div class="wrap">
-      <div data-reveal>
-        <div class="eyebrow-badge"><span class="dot"></span> Based in Lamongan, Indonesia</div>
-        <h1>Affan <span class="hl-swipe">Pratangga</span></h1>
-        <div class="role"><span id="roleText"></span><span class="role-cursor"></span></div>
-        <p class="lede">Focused on bug hunting, website security monitoring, and ethical hacking exploration on Linux — while building a range of interactive web projects from scratch.</p>
+      <div class="hero-text">
+        <h1 class="hero-name"><span>Affan</span><span>Pratangga</span></h1>
+        <p class="role"><span class="role-prompt">&gt;</span> <span id="roleText"></span><span class="caret"></span></p>
+
+        <p class="lede">I look for the weak points in websites before someone else does &mdash; and I build the sites too. Bug hunting, security monitoring and front-end work, mostly from a Kali and Arch.</p>
+
         <div class="hero-actions">
-          <a href="#contact" class="btn btn-primary magnetic"><span>Contact me</span></a>
-          <a href="#skills" class="btn btn-ghost magnetic"><span>View skills</span></a>
+          <a href="#contact" class="btn btn-solid"><span>Get in touch</span></a>
+          <a href="#skills" class="btn"><span>See what I do</span></a>
         </div>
-        <div class="hero-stats">
-          <div class="stat"><span class="stat-num" data-count="2">0</span><span class="stat-label">Focus areas</span></div>
-          <div class="stat"><span class="stat-num" data-count="6">0</span><span class="stat-label">Security skills</span></div>
-          <div class="stat"><span class="stat-num" data-count="4">0</span><span class="stat-label">Dev skills</span></div>
-        </div>
+
+        <dl class="hero-meta">
+          <div><dt>Right now</dt><dd>Preparing for certification</dd></div>
+          <div><dt>Daily system</dt><dd>Arch Linux &amp; Kali Linux</dd></div>
+          <div><dt>Local time</dt><dd><span id="localClock">--:--</span> WIB</dd></div>
+        </dl>
       </div>
-      <div class="hero-visual" data-reveal>
-        <div class="photo-frame">
-          <img src="profile.jpg" alt="Photo of Affan Pratangga" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-          <div class="photo-placeholder">Profile photo</div>
-        </div>
-        <div class="photo-cloud" style="top:2%; left:-6%;">
-          <svg width="64" height="30" viewBox="0 0 64 30"><ellipse cx="18" cy="19" rx="18" ry="10" fill="#FFFFFF"/><ellipse cx="34" cy="12" rx="16" ry="12" fill="#FFFFFF"/><ellipse cx="49" cy="19" rx="14" ry="9" fill="#FFFFFF"/></svg>
-        </div>
-        <div class="photo-cloud" style="bottom:4%; right:-8%; animation-delay:-3s;">
-          <svg width="56" height="26" viewBox="0 0 56 26"><ellipse cx="15" cy="17" rx="15" ry="9" fill="#FFFFFF"/><ellipse cx="28" cy="10" rx="13" ry="10" fill="#FFFFFF"/><ellipse cx="41" cy="17" rx="12" ry="8" fill="#FFFFFF"/></svg>
-        </div>
-      </div>
+
+      <figure class="hero-figure">
+        <button class="portrait" id="portraitTrigger" data-lightbox-src="profile.jpg" data-lightbox-caption="Affan Pratangga — Lamongan, East Java" aria-label="Enlarge photo">
+          <img src="profile.jpg" alt="Affan Pratangga" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div class="portrait-fallback">Profile photo</div>
+        </button>
+        <figcaption>Lamongan, East Java &mdash; 2026</figcaption>
+      </figure>
     </div>
-    <button class="scroll-cue" id="scrollCue" aria-label="Scroll down"><span></span></button>
+
+    <button class="scroll-cue" id="scrollCue" aria-label="Scroll to about">Scroll</button>
   </section>
 
-  <section id="about">
+  <section id="about" class="sec">
     <div class="wrap">
-      <div>
-        <div class="section-head" data-reveal><h2>About me</h2></div>
-        <p data-reveal>I work across both cybersecurity and web development side by side. Most of my work runs on Arch-based distros and Kali Linux, where I'm used to digging into security testing tools while also setting up my development environment.</p>
-        <p data-reveal>On the bug hunting and security monitoring side, my focus is finding vulnerabilities on websites before they become real problems. Going forward, I plan to pursue formal certifications in cybersecurity and ethical hacking to strengthen the foundation I've built self-taught so far.</p>
+      <div class="sec-head" data-reveal>
+        <h2>About</h2>
+        <p class="sec-note">Security and development, worked on side by side.</p>
       </div>
-      <div class="focus-list">
-        <div class="focus-item" data-reveal><h3>Cybersecurity</h3><p>Bug hunting, website security monitoring, and everyday ethical hacking exploration.</p></div>
-        <div class="focus-item" data-reveal><h3>Web development</h3><p>Building interactive web pages and apps, from landing pages to browser-based tools.</p></div>
-        <div class="focus-item" data-reveal><h3>Work environment</h3><p>Arch Linux and Kali Linux as the daily base for both research and development.</p></div>
+
+      <div class="about-grid">
+        <div class="prose" data-reveal>
+          <p>I work across cybersecurity and web development at the same time. Most of it happens on Arch-based distros and Kali Linux, where the testing tools and my development setup live in the same place.</p>
+          <p>On the security side the goal is simple: find the vulnerability on a site before it turns into a real incident. Everything so far has been self-taught through practice, and the next step is putting formal certification behind it.</p>
+        </div>
+
+        <dl class="facts" data-reveal>
+          <div>
+            <dt>Cybersecurity</dt>
+            <dd>Bug hunting, website monitoring, and day-to-day ethical hacking practice.</dd>
+          </div>
+          <div>
+            <dt>Web development</dt>
+            <dd>Interactive pages and small browser tools, written by hand rather than assembled.</dd>
+          </div>
+          <div>
+            <dt>Environment</dt>
+            <dd>Arch and Kali, one terminal for both research and building.</dd>
+          </div>
+        </dl>
       </div>
     </div>
   </section>
 
-  <section id="education">
+  <section id="education" class="sec">
     <div class="wrap">
-      <div class="section-head" data-reveal>
+      <div class="sec-head" data-reveal>
         <h2>Education</h2>
-        <p>About my education</p>
+        <p class="sec-note">Where the formal part comes from.</p>
       </div>
-      <div class="education-grid">
-        <div class="edu-card" data-reveal>
-          <div class="edu-logo">
-            <img src="univs.png" alt="Institution logo 1" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-            <span class="edu-logo-placeholder">Institution logo 1</span>
-          </div>
-          <div class="edu-body">
-            <div class="edu-inst">University</div>
-            <h3>Islamic University Of Lamongan</h3>
-            <div class="edu-prodi">Informatics Engineering</div>
-            <div class="edu-period">2026 — Present</div>
-          </div>
-        </div>
-        <div class="edu-card" data-reveal>
-          <div class="edu-logo">
-            <img src="voca.png" alt="Institution logo 2" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-            <span class="edu-logo-placeholder">Institution logo 2</span>
-          </div>
-          <div class="edu-body">
-            <div class="edu-inst">School</div>
-            <h3>State Vocational School 1 Sambeng</h3>
-            <div class="edu-prodi">Motorcycle Engineering And Business</div>
-            <div class="edu-period">2023 — 2026</div>
-          </div>
-        </div>
-      </div>
+
+      <ul class="rows">
+        <li class="row" data-reveal>
+          <span class="row-mark">
+            <img src="univs.png" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <span class="row-mark-fallback">IUL</span>
+          </span>
+          <span class="row-body">
+            <strong>Islamic University of Lamongan</strong>
+            <span>Informatics Engineering &middot; undergraduate</span>
+          </span>
+          <span class="row-meta">2026 &rarr; Present</span>
+        </li>
+        <li class="row" data-reveal>
+          <span class="row-mark">
+            <img src="voca.png" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <span class="row-mark-fallback">SMK</span>
+          </span>
+          <span class="row-body">
+            <strong>State Vocational School 1 Sambeng</strong>
+            <span>Motorcycle Engineering and Business</span>
+          </span>
+          <span class="row-meta">2023 &ndash; 2026</span>
+        </li>
+      </ul>
     </div>
   </section>
 
-  <section id="certificates">
+  <section id="certificates" class="sec">
     <div class="wrap">
-      <div class="section-head" data-reveal>
-        <h2>Certificates &amp; awards</h2>
-        <p>During my time at vocational school I collected the following certificates and awards.</p>
+      <div class="sec-head" data-reveal>
+        <h2>Records</h2>
+        <p class="sec-note">Certificates and awards collected during vocational school.</p>
       </div>
-      <div class="cert-grid">
-        <div class="cert-card" data-reveal>
-          <div class="cert-thumb">
-            <img src="sertv1.png" alt="Certificate 1" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-            <span class="cert-thumb-placeholder">Certificate image 1</span>
-          </div>
-          <h3>Certificate Of Competency</h3>
-          <div class="cert-issuer">Astra Honda Motor</div>
-          <div class="cert-year">2025</div>
-        </div>
-        <div class="cert-card" data-reveal>
-          <div class="cert-thumb">
-            <img src="certv2.png" alt="Certificate 2" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-            <span class="cert-thumb-placeholder">Certificate image 2</span>
-          </div>
-          <h3>Graduate With 3rd Best Grade In The TBSM Department</h3>
-          <div class="cert-issuer">State Vocational School 1 Sambeng</div>
-          <div class="cert-year">2026</div>
-        </div>
-      </div>
+
+      <ul class="rows rows--cert">
+        <li class="row" data-reveal>
+          <button class="row-thumb" data-lightbox-src="sertv1.png" data-lightbox-caption="Certificate of Competency — Astra Honda Motor" aria-label="Enlarge certificate">
+            <img src="sertv1.png" alt="Certificate of competency" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <span class="row-mark-fallback">Scan</span>
+          </button>
+          <span class="row-body">
+            <strong>Certificate of Competency</strong>
+            <span>Astra Honda Motor</span>
+          </span>
+          <span class="row-meta">2025</span>
+        </li>
+        <li class="row" data-reveal>
+          <button class="row-thumb" data-lightbox-src="certv2.png" data-lightbox-caption="Third best graduate, TBSM department — State Vocational School 1 Sambeng" aria-label="Enlarge certificate">
+            <img src="certv2.png" alt="Graduation award" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <span class="row-mark-fallback">Scan</span>
+          </button>
+          <span class="row-body">
+            <strong>Third best graduate, TBSM department</strong>
+            <span>State Vocational School 1 Sambeng</span>
+          </span>
+          <span class="row-meta">2026</span>
+        </li>
+      </ul>
     </div>
   </section>
 
-  <section id="skills">
+  <section id="skills" class="sec">
     <div class="wrap">
-      <div class="section-head" data-reveal>
+      <div class="sec-head" data-reveal>
         <h2>Skills</h2>
-        <p>Two sides that complement each other: keeping systems secure, while also building them. Click a tab to switch.</p>
+        <p class="sec-note">Breaking things carefully, and building them properly.</p>
       </div>
 
       <div class="skill-tabs" role="tablist">
-        <button class="skill-tab active" data-tab="security">Cybersecurity</button>
-        <button class="skill-tab" data-tab="dev">Web development</button>
+        <button class="skill-tab active" data-tab="security">Security</button>
+        <button class="skill-tab" data-tab="dev">Development</button>
         <span class="skill-tab-indicator" id="tabIndicator"></span>
       </div>
 
-      <div class="skill-panel active" id="panel-security">
-        <div class="skill-pill"><strong>Bug hunting</strong>Finding and reporting security vulnerabilities in web applications.</div>
-        <div class="skill-pill"><strong>Vulnerability assessment</strong>Assessing a system's security risk in a structured way.</div>
-        <div class="skill-pill"><strong>Website monitoring</strong>Watching for changes and suspicious activity on a site.</div>
-        <div class="skill-pill"><strong>Ethical hacking</strong>Basic to intermediate security testing done responsibly.</div>
-        <div class="skill-pill"><strong>Kali Linux</strong>Primary environment for security research and testing.</div>
-        <div class="skill-pill"><strong>Arch Linux</strong>Daily system configured to fit personal needs.</div>
-      </div>
+      <dl class="skill-panel active" id="panel-security">
+        <div><dt>Bug hunting</dt><dd>Finding and reporting vulnerabilities in web applications.</dd></div>
+        <div><dt>Vulnerability assessment</dt><dd>Working through a system's risk in a structured way.</dd></div>
+        <div><dt>Website monitoring</dt><dd>Watching a site for changes and suspicious activity.</dd></div>
+        <div><dt>Ethical hacking</dt><dd>Basic to intermediate security testing, done responsibly.</dd></div>
+        <div><dt>Kali Linux</dt><dd>Main environment for security research and testing.</dd></div>
+        <div><dt>Arch Linux</dt><dd>Daily system, configured from the ground up.</dd></div>
+      </dl>
 
-      <div class="skill-panel" id="panel-dev">
-        <div class="skill-pill"><strong>HTML, CSS, JavaScript</strong>Building web interfaces from scratch without heavy frameworks.</div>
-        <div class="skill-pill"><strong>Python (Flask)</strong>Lightweight backend for small sites and tools.</div>
-        <div class="skill-pill"><strong>Form integration</strong>Connecting web forms to message delivery services.</div>
-        <div class="skill-pill"><strong>Animation &amp; interaction</strong>Custom effects like parallax, transitions, and interactive elements.</div>
-      </div>
+      <dl class="skill-panel" id="panel-dev">
+        <div><dt>HTML, CSS, JavaScript</dt><dd>Interfaces written from scratch, without a heavy framework.</dd></div>
+        <div><dt>Python with Flask</dt><dd>Light backends for small sites and internal tools.</dd></div>
+        <div><dt>Form integration</dt><dd>Wiring web forms into real message delivery.</dd></div>
+        <div><dt>Motion and interaction</dt><dd>Parallax, transitions and custom interactive pieces.</dd></div>
+      </dl>
 
       <div class="terminal" data-reveal>
         <div class="terminal-bar">
@@ -327,96 +350,137 @@
           <span class="terminal-title">affan@lamongan: ~</span>
         </div>
         <div class="terminal-body" id="terminalBody">
-          <p class="terminal-line"><span class="terminal-prompt">$</span> <span id="termLine"></span><span class="terminal-cursor" id="termCursor"></span></p>
+          <p class="terminal-line"><span class="terminal-prompt">$</span> <span id="termLine"></span><span class="caret" id="termCursor"></span></p>
         </div>
         <div class="terminal-footer">
-          <button class="terminal-run" id="termRun">run next command →</button>
+          <button class="terminal-run" id="termRun">Run next command</button>
         </div>
       </div>
     </div>
   </section>
 
-  <section id="roadmap">
+  <section id="roadmap" class="sec">
     <div class="wrap">
-      <div class="section-head" data-reveal>
-        <h2>Learning roadmap</h2>
-        <p>The stages I'm currently working through toward more formal expertise.</p>
+      <div class="sec-head" data-reveal>
+        <h2>Roadmap</h2>
+        <p class="sec-note">The path from self-taught to certified, in order.</p>
       </div>
-      <div class="roadmap">
-        <div class="road-step" data-reveal>
-          <div class="road-num">1</div>
-          <h3>Self-taught</h3>
-          <p>Learning independently through hands-on practice: bug hunting, website monitoring, and personal web projects.</p>
-        </div>
-        <div class="road-step current" data-reveal>
-          <div class="road-num">2</div>
-          <h3>Formal certification</h3>
-          <p>Preparing for official certifications in cybersecurity and ethical hacking.</p>
-        </div>
-        <div class="road-step" data-reveal>
-          <div class="road-num">3</div>
-          <h3>Advanced specialization</h3>
-          <p>Deepening one specific path once the security foundation and certifications are solid.</p>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <section id="contact">
-    <div class="wrap">
-      <div class="section-head" data-reveal>
-        <h2>Let's connect</h2>
-        <p>Open to discussions about cybersecurity, web project collaboration, or just exchanging ideas about Linux.</p>
-      </div>
-      <div class="contact-grid">
-        <div class="contact-card" data-reveal>
-          <h2>Direct contact</h2>
-          <p>The fastest way to reach me.</p>
-          <div class="contact-links">
-            <button class="contact-copy" type="button" data-copy="affanpratangga12@gmail.com">
-              <span class="icon">✉</span>
-              <span class="contact-text">affanpratangga12@gmail.com</span>
-              <span class="copy-hint">Copy</span>
-            </button>
-            <a href="https://instagram.com/affanprtgga" target="_blank" rel="noopener">
-              <span class="icon">◎</span>
-              <span class="contact-text">@affanprtgga</span>
-            </a>
+      <ol class="road">
+        <li class="road-step done" data-reveal>
+          <span class="road-num">1</span>
+          <div>
+            <h3>Self-taught</h3>
+            <p>Learning by doing: bug hunting, website monitoring and personal web projects.</p>
           </div>
+        </li>
+        <li class="road-step current" data-reveal>
+          <span class="road-num">2</span>
+          <div>
+            <h3>Formal certification <em>in progress</em></h3>
+            <p>Preparing for official certification in cybersecurity and ethical hacking.</p>
+          </div>
+        </li>
+        <li class="road-step" data-reveal>
+          <span class="road-num">3</span>
+          <div>
+            <h3>Specialisation</h3>
+            <p>Going deep on one track once the foundation and the certificates are solid.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="contact" class="sec">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <h2>Contact</h2>
+        <p class="sec-note">Security talk, project collaboration, or just Linux config opinions.</p>
+      </div>
+
+      <div class="contact-grid">
+        <div class="contact-direct" data-reveal>
+          <button class="contact-copy" type="button" data-copy="affanpratangga12@gmail.com">
+            <span class="contact-text">affanpratangga12@gmail.com</span>
+            <span class="copy-hint">Copy</span>
+          </button>
+          <a class="contact-link" href="https://instagram.com/affanprtgga" target="_blank" rel="noopener">
+            <span class="contact-text">@affanprtgga</span>
+            <span class="copy-hint">Instagram</span>
+          </a>
+          <button class="contact-link" type="button" id="vcardBtn">
+            <span class="contact-text">Save as contact card</span>
+            <span class="copy-hint">.vcf</span>
+          </button>
+          <button class="contact-link" type="button" id="printBtn">
+            <span class="contact-text">Print this page</span>
+            <span class="copy-hint">PDF</span>
+          </button>
+          <p class="contact-aside">Email is the fastest way to reach me. I read everything, and I answer anything that isn't a sales pitch.</p>
         </div>
 
-        <div class="contact-form-card" data-reveal>
-          <form id="contactForm">
-            <div class="form-row">
-              <label for="name">Name</label>
-              <input type="text" id="name" name="name" placeholder="Full name" required>
-            </div>
-            <div class="form-row">
-              <label for="email">Email</label>
-              <input type="email" id="email" name="email" placeholder="email@example.com" required>
-            </div>
-            <div class="form-row">
-              <label for="message">Message</label>
-              <textarea id="message" name="message" rows="4" placeholder="Write your message..." required></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary" id="formSubmit"><span>Send message</span></button>
-            <div class="form-status" id="formStatus"></div>
-            <div class="form-note">Messages from this form will be sent directly to my email via Formspree.</div>
-          </form>
-        </div>
+        <form id="contactForm" class="contact-form" data-reveal>
+          <div class="form-row">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" placeholder="Your name" required>
+          </div>
+          <div class="form-row">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="you@example.com" required>
+          </div>
+          <div class="form-row">
+            <label for="message">Message</label>
+            <textarea id="message" name="message" rows="4" placeholder="What's this about?" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-solid" id="formSubmit"><span>Send message</span></button>
+          <div class="form-status" id="formStatus"></div>
+          <p class="form-note">Sent straight to my inbox through Formspree.</p>
+        </form>
       </div>
     </div>
   </section>
 
 </main>
 
-<footer>© 2026 Affan Pratangga. Built with HTML, CSS, and JavaScript.</footer>
+<footer>
+  <div class="wrap">
+    <span>&copy; 2026 Affan Pratangga</span>
+    <span>HTML, CSS and JavaScript</span>
+  </div>
+</footer>
 
-<button class="to-top" id="toTop" aria-label="Back to top">↑</button>
+<button class="to-top" id="toTop" aria-label="Back to top">Top</button>
+
+<div class="palette" id="palette" aria-hidden="true">
+  <div class="palette-backdrop" id="paletteBackdrop"></div>
+  <div class="palette-panel" role="dialog" aria-modal="true" aria-label="Command palette">
+    <div class="palette-input-row">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.6"/><path d="m20 20-3.4-3.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <input type="text" id="paletteInput" placeholder="Jump to a section, or run a command&hellip;" autocomplete="off" spellcheck="false">
+      <kbd>Esc</kbd>
+    </div>
+    <ul class="palette-results" id="paletteResults"></ul>
+    <div class="palette-foot">
+      <span><kbd>&uarr;</kbd><kbd>&darr;</kbd> navigate</span>
+      <span><kbd>&crarr;</kbd> select</span>
+    </div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <div class="lightbox-backdrop" id="lightboxBackdrop"></div>
+  <figure class="lightbox-frame">
+    <img id="lightboxImg" src="" alt="">
+    <figcaption id="lightboxCaption"></figcaption>
+  </figure>
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close">Close</button>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <div id="ytMusicPlayer" class="yt-music-player" aria-hidden="true"></div>
 
 <script src="script.js"></script>
-<script defer src=""/_vercel/insights/script.js"></script>
 </body>
 </html>

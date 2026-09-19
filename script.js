@@ -1,15 +1,28 @@
 /* ======================================================
    Affan.dev — main script
-   Sections: theme, weather canvas, clouds, typing, reveal,
-   nav/scrollspy, skill tabs, terminal, contact form/copy,
-   cursor glow, hero stat counters, back-to-top
+   Sections: theme, music, weather canvas, local clock, typing,
+   reveal, nav/scrollspy, skill tabs, terminal, contact, back-to-top
    ====================================================== */
+
+/* ===== Toast (shared) ===== */
+const AffanToast = (function(){
+  const el = document.getElementById('toast');
+  let timer = null;
+  return function(msg){
+    if(!el) return;
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(timer);
+    timer = setTimeout(() => el.classList.remove('show'), 2200);
+  };
+})();
 
 /* ===== Dark mode ===== */
 (function(){
   const root = document.documentElement;
   const btn = document.getElementById('themeToggle');
   const iconPath = document.querySelector('#themeIcon path');
+  if(!btn) return;
 
   const SUN = "M12 4V2M12 22v-2M4.93 4.93 3.51 3.51M20.49 20.49l-1.42-1.42M4 12H2m20 0h-2M4.93 19.07l-1.42 1.42M20.49 3.51l-1.42 1.42M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z";
   const MOON = "M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z";
@@ -412,7 +425,8 @@ const WeatherFX = (function(){
     });
 
     // sway the cloud layer gently with the same gust for a cohesive feel
-    document.getElementById('sky').style.setProperty('--gust', (Math.sin(Date.now() / 900) * gust * 3) + 'px');
+    const skyEl = document.getElementById('sky');
+    if(skyEl) skyEl.style.setProperty('--gust', (Math.sin(Date.now() / 900) * gust * 3) + 'px');
   }
 
   let lastT = performance.now();
@@ -495,78 +509,20 @@ WeatherFX.init();
   WeatherFX.setMode(saved);
 })();
 
-/* ===== Floating clouds background ===== */
+/* ===== Live local clock (WIB) ===== */
 (function(){
-  const sky = document.getElementById('sky');
-  const cloudCount = 7;
-  function cloudSVG(scale, opacity, id){
-    const w = 200 * scale, h = 96 * scale;
-    return `<svg width="${w}" height="${h}" viewBox="0 0 200 96" style="opacity:${opacity}">
-      <defs>
-        <radialGradient id="cg${id}a" cx="40%" cy="30%" r="75%">
-          <stop offset="0%" stop-color="#FFFFFF"/>
-          <stop offset="100%" stop-color="#EAF3FC"/>
-        </radialGradient>
-        <linearGradient id="cg${id}b" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="55%" stop-color="#FFFFFF"/>
-          <stop offset="100%" stop-color="#D7E7F5"/>
-        </linearGradient>
-      </defs>
-      <ellipse cx="80" cy="70" rx="62" ry="20" fill="url(#cg${id}b)"/>
-      <ellipse cx="55" cy="58" rx="52" ry="28" fill="url(#cg${id}a)"/>
-      <ellipse cx="100" cy="36" rx="46" ry="36" fill="url(#cg${id}a)"/>
-      <ellipse cx="144" cy="56" rx="42" ry="25" fill="url(#cg${id}a)"/>
-    </svg>`;
+  const el = document.getElementById('localClock');
+  if(!el) return;
+  function tick(){
+    const now = new Date();
+    // Asia/Jakarta = WIB, independent of the visitor's own timezone
+    const t = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit', hour12: false
+    }).format(now);
+    el.textContent = t;
   }
-  for(let i = 0; i < cloudCount; i++){
-    const el = document.createElement('div');
-    el.className = 'cloud';
-    const scale = 0.5 + Math.random() * 1.1;
-    const opacity = 0.55 + Math.random() * 0.35;
-    const top = Math.random() * 85;
-    const duration = 45 + Math.random() * 70;
-    const delay = -Math.random() * duration;
-    el.style.top = top + '%';
-    el.style.left = '0';
-    el.style.animationDuration = duration + 's';
-    el.style.animationDelay = delay + 's';
-    el.dataset.baseDuration = duration;
-    el.innerHTML = cloudSVG(scale, opacity, i);
-    sky.appendChild(el);
-  }
-  // gentle parallax following mouse movement
-  document.addEventListener('mousemove', (e) => {
-    const y = (e.clientY / window.innerHeight - 0.5) * 16;
-    sky.style.setProperty('--parallax-y', y + 'px');
-    document.querySelectorAll('.cloud').forEach(c => c.style.setProperty('--parallax-y', y + 'px'));
-  });
-})();
-
-/* ===== Cursor glow (desktop only) ===== */
-(function(){
-  const glow = document.getElementById('cursorGlow');
-  if(window.matchMedia('(pointer: coarse)').matches) return;
-  let shown = false;
-  document.addEventListener('mousemove', (e) => {
-    glow.style.left = e.clientX + 'px';
-    glow.style.top = e.clientY + 'px';
-    if(!shown){ glow.classList.add('on'); shown = true; }
-  });
-  document.addEventListener('mouseleave', () => glow.classList.remove('on'));
-})();
-
-/* ===== Magnetic buttons ===== */
-(function(){
-  document.querySelectorAll('.magnetic').forEach(btn => {
-    if(window.matchMedia('(pointer: coarse)').matches) return;
-    btn.addEventListener('mousemove', (e) => {
-      const rect = btn.getBoundingClientRect();
-      const x = e.clientX - rect.left - rect.width / 2;
-      const y = e.clientY - rect.top - rect.height / 2;
-      btn.style.transform = `translate(${x * 0.18}px, ${y * 0.35 - 2}px)`;
-    });
-    btn.addEventListener('mouseleave', () => { btn.style.transform = ''; });
-  });
+  tick();
+  setInterval(tick, 15000);
 })();
 
 /* ===== Typing effect for role ===== */
@@ -589,31 +545,6 @@ WeatherFX.init();
     setTimeout(tick, deleting ? 40 : 70);
   }
   tick();
-})();
-
-/* ===== Hero stat counters ===== */
-(function(){
-  const stats = document.querySelectorAll('.stat-num');
-  if(!stats.length) return;
-  let done = false;
-  function run(){
-    if(done) return;
-    done = true;
-    stats.forEach(stat => {
-      const target = parseInt(stat.dataset.count, 10);
-      let cur = 0;
-      const step = Math.max(1, Math.round(target / 30));
-      const t = setInterval(() => {
-        cur += step;
-        if(cur >= target){ cur = target; clearInterval(t); }
-        stat.textContent = cur;
-      }, 35);
-    });
-  }
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if(e.isIntersecting) run(); });
-  }, { threshold: 0.5 });
-  io.observe(document.querySelector('.hero-stats'));
 })();
 
 /* ===== Reveal on scroll (generic, staggered) ===== */
@@ -649,16 +580,21 @@ WeatherFX.init();
   });
 })();
 
-/* ===== Navigation: scrollspy + mobile menu ===== */
+/* ===== Navigation: scrollspy + mobile menu + section rail ===== */
 (function(){
   const links = document.querySelectorAll('[data-nav]');
-  const sections = ['about','education','certificates','skills','roadmap','contact'].map(id => document.getElementById(id));
+  const railDots = document.querySelectorAll('[data-rail]');
+  const sectionIds = ['about','education','certificates','skills','roadmap','contact'];
+  const sections = sectionIds.map(id => document.getElementById(id));
   const io = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if(entry.isIntersecting){
         links.forEach(l => l.classList.remove('active'));
+        railDots.forEach(d => d.classList.remove('active'));
         const match = document.querySelector(`[data-nav][href="#${entry.target.id}"]`);
         if(match) match.classList.add('active');
+        const dot = document.querySelector(`[data-rail][href="#${entry.target.id}"]`);
+        if(dot) dot.classList.add('active');
       }
     });
   }, { rootMargin: '-45% 0px -45% 0px' });
@@ -683,7 +619,7 @@ WeatherFX.init();
 
   function moveIndicator(tab){
     indicator.style.width = tab.offsetWidth + 'px';
-    indicator.style.transform = `translateX(${tab.offsetLeft - 5}px)`;
+    indicator.style.transform = `translateX(${tab.offsetLeft}px)`;
   }
 
   function activate(tab){
@@ -694,7 +630,16 @@ WeatherFX.init();
     moveIndicator(tab);
   }
 
-  tabs.forEach(tab => tab.addEventListener('click', () => activate(tab)));
+  tabs.forEach((tab, i) => {
+    tab.addEventListener('click', () => activate(tab));
+    tab.addEventListener('keydown', (e) => {
+      if(e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      e.preventDefault();
+      const next = tabs[(i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length];
+      activate(next);
+      next.focus();
+    });
+  });
   window.addEventListener('resize', () => {
     const active = document.querySelector('.skill-tab.active');
     if(active) moveIndicator(active);
@@ -732,7 +677,7 @@ WeatherFX.init();
     setTimeout(() => {
       const out = document.createElement('p');
       out.className = 'terminal-line appear';
-      out.style.color = '#9FD3FF';
+      out.className = 'terminal-line appear terminal-out';
       out.textContent = commands[0].out;
       cursor.remove();
       body.appendChild(out);
@@ -748,7 +693,7 @@ WeatherFX.init();
     setTimeout(() => {
       const out = document.createElement('p');
       out.className = 'terminal-line appear';
-      out.style.color = '#9FD3FF';
+      out.className = 'terminal-line appear terminal-out';
       out.textContent = commands[idx].out;
       body.appendChild(out);
       body.scrollTop = body.scrollHeight;
@@ -829,58 +774,186 @@ WeatherFX.init();
   btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 })();
 
-/* ===== Ripple effect on .btn elements ===== */
+/* ===== Command palette ===== */
 (function(){
-  document.querySelectorAll('.btn, .skill-tab, .terminal-run').forEach(btn => {
-    btn.addEventListener('click', function(e){
-      const ripple = document.createElement('span');
-      const rect = this.getBoundingClientRect();
-      const size = Math.max(rect.width, rect.height) * 1.5;
-      ripple.style.cssText = `
-        position:absolute; border-radius:50%; pointer-events:none;
-        width:${size}px; height:${size}px;
-        left:${e.clientX - rect.left - size/2}px;
-        top:${e.clientY - rect.top - size/2}px;
-        background:rgba(255,255,255,0.3);
-        transform:scale(0); animation:rippleAnim 0.55s ease-out forwards;
-      `;
-      // inject keyframes once
-      if(!document.getElementById('rippleStyle')){
-        const s = document.createElement('style');
-        s.id = 'rippleStyle';
-        s.textContent = '@keyframes rippleAnim{to{transform:scale(1);opacity:0;}}';
-        document.head.appendChild(s);
-      }
-      const prev = this.style.position;
-      if(!prev || prev === 'static') this.style.position = 'relative';
-      this.style.overflow = 'hidden';
-      this.appendChild(ripple);
-      setTimeout(() => ripple.remove(), 600);
+  const root = document.getElementById('palette');
+  const backdrop = document.getElementById('paletteBackdrop');
+  const input = document.getElementById('paletteInput');
+  const resultsEl = document.getElementById('paletteResults');
+  const openBtn = document.getElementById('paletteToggle');
+  const kbdEl = document.getElementById('paletteKbd');
+  if(!root || !input || !resultsEl) return;
+
+  const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+  if(kbdEl) kbdEl.textContent = isMac ? '\u2318K' : 'Ctrl K';
+
+  const items = [
+    { label: 'Home', hint: 'section', run: () => go('home') },
+    { label: 'About', hint: 'section', run: () => go('about') },
+    { label: 'Education', hint: 'section', run: () => go('education') },
+    { label: 'Records', hint: 'certificates', run: () => go('certificates') },
+    { label: 'Skills', hint: 'section', run: () => go('skills') },
+    { label: 'Roadmap', hint: 'section', run: () => go('roadmap') },
+    { label: 'Contact', hint: 'section', run: () => go('contact') },
+    { label: 'Toggle dark mode', hint: 'command', run: () => click('themeToggle') },
+    { label: 'Set weather: clear', hint: 'command', run: () => click(w('clear')) },
+    { label: 'Set weather: drizzle', hint: 'command', run: () => click(w('drizzle')) },
+    { label: 'Set weather: rain', hint: 'command', run: () => click(w('rain')) },
+    { label: 'Set weather: windy', hint: 'command', run: () => click(w('windy')) },
+    { label: 'Play / pause music', hint: 'command', run: () => click('musicToggle') },
+    { label: 'Copy email address', hint: 'command', run: () => click(document.querySelector('.contact-copy')) },
+    { label: 'Open Instagram', hint: 'link', run: () => window.open('https://instagram.com/affanprtgga', '_blank', 'noopener') },
+    { label: 'Save contact card', hint: 'command', run: () => click('vcardBtn') },
+    { label: 'Print portfolio', hint: 'command', run: () => window.print() },
+    { label: 'Login', hint: 'page', run: () => { window.location.href = 'login.html'; } },
+    { label: 'Create account', hint: 'page', run: () => { window.location.href = 'register.html'; } }
+  ];
+
+  function w(mode){ return document.querySelector('[data-weather="' + mode + '"]'); }
+  function click(elOrId){
+    const el = typeof elOrId === 'string' ? document.getElementById(elOrId) : elOrId;
+    if(el) el.click();
+  }
+  function go(id){
+    const el = document.getElementById(id);
+    if(el) el.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  let filtered = items.slice();
+  let activeIndex = 0;
+
+  function render(){
+    resultsEl.innerHTML = '';
+    if(!filtered.length){
+      const empty = document.createElement('div');
+      empty.className = 'palette-empty';
+      empty.textContent = 'No matching command.';
+      resultsEl.appendChild(empty);
+      return;
+    }
+    filtered.forEach((item, i) => {
+      const li = document.createElement('li');
+      li.className = 'palette-item' + (i === activeIndex ? ' active' : '');
+      li.innerHTML = '<span>' + item.label + '</span><span>' + item.hint + '</span>';
+      li.addEventListener('mouseenter', () => { activeIndex = i; render(); });
+      li.addEventListener('click', () => execute(i));
+      resultsEl.appendChild(li);
     });
+    const activeEl = resultsEl.children[activeIndex];
+    if(activeEl) activeEl.scrollIntoView({ block: 'nearest' });
+  }
+
+  function filter(){
+    const q = input.value.trim().toLowerCase();
+    filtered = !q ? items.slice() : items.filter(it => it.label.toLowerCase().includes(q) || it.hint.toLowerCase().includes(q));
+    activeIndex = 0;
+    render();
+  }
+
+  function execute(i){
+    const item = filtered[i];
+    if(!item) return;
+    close();
+    setTimeout(item.run, 120);
+  }
+
+  function open(){
+    root.classList.add('open');
+    root.setAttribute('aria-hidden', 'false');
+    document.documentElement.style.overflow = 'hidden';
+    input.value = '';
+    filter();
+    setTimeout(() => input.focus(), 30);
+  }
+
+  function close(){
+    root.classList.remove('open');
+    root.setAttribute('aria-hidden', 'true');
+    document.documentElement.style.overflow = '';
+  }
+
+  if(openBtn) openBtn.addEventListener('click', open);
+  if(backdrop) backdrop.addEventListener('click', close);
+  input.addEventListener('input', filter);
+
+  document.addEventListener('keydown', (e) => {
+    const meta = isMac ? e.metaKey : e.ctrlKey;
+    if(meta && e.key.toLowerCase() === 'k'){
+      e.preventDefault();
+      root.classList.contains('open') ? close() : open();
+      return;
+    }
+    if(!root.classList.contains('open')) return;
+    if(e.key === 'Escape'){ close(); return; }
+    if(e.key === 'ArrowDown'){ e.preventDefault(); activeIndex = Math.min(activeIndex + 1, filtered.length - 1); render(); }
+    if(e.key === 'ArrowUp'){ e.preventDefault(); activeIndex = Math.max(activeIndex - 1, 0); render(); }
+    if(e.key === 'Enter'){ e.preventDefault(); execute(activeIndex); }
   });
 })();
 
-/* ===== 3D card tilt effect on cards (desktop only) ===== */
+/* ===== Lightbox (portrait + certificate scans) ===== */
 (function(){
-  if(window.matchMedia('(pointer: coarse)').matches) return;
-  const cards = document.querySelectorAll('.edu-card, .cert-card, .focus-item, .road-step, .contact-card, .contact-form-card');
-  cards.forEach(card => {
-    card.addEventListener('mousemove', e => {
-      const rect = card.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width - 0.5;
-      const y = (e.clientY - rect.top) / rect.height - 0.5;
-      card.style.transform = `perspective(600px) rotateX(${-y * 5}deg) rotateY(${x * 5}deg) translateY(-4px)`;
-    });
-    card.addEventListener('mouseleave', () => {
-      card.style.transform = '';
-    });
-  });
+  const root = document.getElementById('lightbox');
+  const backdrop = document.getElementById('lightboxBackdrop');
+  const closeBtn = document.getElementById('lightboxClose');
+  const imgEl = document.getElementById('lightboxImg');
+  const capEl = document.getElementById('lightboxCaption');
+  const triggers = document.querySelectorAll('[data-lightbox-src]');
+  if(!root || !imgEl || !triggers.length) return;
+
+  function open(src, caption){
+    imgEl.src = src;
+    imgEl.alt = caption || '';
+    capEl.textContent = caption || '';
+    root.classList.add('open');
+    root.setAttribute('aria-hidden', 'false');
+  }
+  function close(){
+    root.classList.remove('open');
+    root.setAttribute('aria-hidden', 'true');
+  }
+
+  triggers.forEach(t => t.addEventListener('click', () => {
+    if(t.querySelector('img') && t.querySelector('img').style.display === 'none') return;
+    open(t.dataset.lightboxSrc, t.dataset.lightboxCaption);
+  }));
+  if(backdrop) backdrop.addEventListener('click', close);
+  if(closeBtn) closeBtn.addEventListener('click', close);
+  document.addEventListener('keydown', (e) => { if(e.key === 'Escape') close(); });
 })();
 
-/* ===== Smooth active nav link underline ===== */
+/* ===== Print / save as PDF ===== */
 (function(){
-  document.querySelectorAll('[data-nav]').forEach(link => {
-    link.addEventListener('mouseenter', () => link.style.transition = 'all 0.18s ease');
-    link.addEventListener('mouseleave', () => link.style.transition = 'all 0.18s ease');
+  const btn = document.getElementById('printBtn');
+  if(!btn) return;
+  btn.addEventListener('click', () => window.print());
+})();
+
+/* ===== Save contact as vCard ===== */
+(function(){
+  const btn = document.getElementById('vcardBtn');
+  if(!btn) return;
+  btn.addEventListener('click', () => {
+    const lines = [
+      'BEGIN:VCARD',
+      'VERSION:3.0',
+      'N:Pratangga;Affan;;;',
+      'FN:Affan Pratangga',
+      'TITLE:Cybersecurity Practitioner & Web Developer',
+      'EMAIL;TYPE=INTERNET:affanpratangga12@gmail.com',
+      'URL:https://instagram.com/affanprtgga',
+      'ADR:;;Lamongan;East Java;;;Indonesia',
+      'END:VCARD'
+    ];
+    const blob = new Blob([lines.join('\r\n')], { type: 'text/vcard' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'affan-pratangga.vcf';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    AffanToast('Contact card downloaded');
   });
 })();
